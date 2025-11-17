@@ -10,11 +10,12 @@
     </div>
 
     <div class="stats-container">
+        <!-- Stat Card untuk Total Buku -->
         <div class="stat-card">
             <div class="stat-card-header">
                 <div>
                     <div class="stat-card-title">Total Buku</div>
-                    <div class="stat-card-value">8,742</div>
+                    <div class="stat-card-value">{{ number_format($bukuStats['total']) }}</div>
                     <div class="stat-card-period">Judul</div>
                 </div>
                 <div class="stat-card-icon">
@@ -22,13 +23,24 @@
                 </div>
             </div>
             <div class="stat-card-footer">
-                <div class="stat-card-trend trend-up">
-                    <i class="fas fa-arrow-up"></i> 2.1%
-                </div>
-                <span>Penambahan bulan ini</span>
+                @if ($bukuStats['trend'] == 'up')
+                    <div class="stat-card-trend trend-up">
+                        <i class="fas fa-arrow-up"></i> {{ $bukuStats['persentase'] }}%
+                    </div>
+                @elseif($bukuStats['trend'] == 'down')
+                    <div class="stat-card-trend trend-down">
+                        <i class="fas fa-arrow-down"></i> {{ $bukuStats['persentase'] }}%
+                    </div>
+                @else
+                    <div class="stat-card-trend">
+                        <i class="fas fa-minus"></i> 0%
+                    </div>
+                @endif
+                <span>{{ $bukuStats['label'] }}</span>
             </div>
         </div>
 
+        <!-- Stat Card untuk Total Admin -->
         <div class="stat-card">
             <div class="stat-card-header">
                 <div>
@@ -48,6 +60,7 @@
             </a>
         </div>
 
+        <!-- Stat Card untuk Total Pengunjung -->
         <div class="stat-card">
             <div class="stat-card-header">
                 <div>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pengunjung;
 use App\Models\Admin;
+use App\Models\Buku;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -11,25 +12,21 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        // Ambil filter periode dari request
         $periode = $request->get('periode', 'tahun_ini');
         
-        // Hitung total pengunjung
         $totalPengunjung = Pengunjung::count();
-        
-        // Hitung total admin
         $totalAdmin = Admin::count();
+        $bukuStats = Buku::getStats();
         
-        // Data untuk grafik berdasarkan periode
         $grafikData = $this->getGrafikData($periode);
         $totalGrafik = $this->getTotalGrafik($periode);
         
-        // Statistik trend pengunjung
         $pengunjungStats = $this->getPengunjungStats();
         
         return view('admin.dashboard.index', compact(
             'totalPengunjung',
             'totalAdmin',
+            'bukuStats',
             'grafikData',
             'totalGrafik',
             'periode',
@@ -41,17 +38,14 @@ class DashboardController extends Controller
     {
         $now = Carbon::now();
         
-        // Pengunjung bulan ini
         $pengunjungBulanIni = Pengunjung::whereYear('tanggal_kunjungan', $now->year)
             ->whereMonth('tanggal_kunjungan', $now->month)
             ->count();
             
-        // Pengunjung bulan lalu
         $pengunjungBulanLalu = Pengunjung::whereYear('tanggal_kunjungan', $now->subMonth()->year)
             ->whereMonth('tanggal_kunjungan', $now->subMonth()->month)
             ->count();
         
-        // Hitung persentase perubahan
         $persentase = 0;
         $trend = 'neutral';
         
@@ -61,7 +55,6 @@ class DashboardController extends Controller
             $persentase = 100;
         }
         
-        // Tentukan trend
         if ($persentase > 0) {
             $trend = 'up';
         } elseif ($persentase < 0) {
@@ -142,8 +135,7 @@ class DashboardController extends Controller
         $endOfMonth = $now->copy()->endOfMonth();
         $daysInMonth = $now->daysInMonth;
         
-        // Untuk bulan ini, kita kelompokkan per 5 hari agar tidak terlalu panjang
-        $groupSize = ceil($daysInMonth / 6); // Maksimal 6 kelompok
+        $groupSize = ceil($daysInMonth / 6);
         $data = [];
         $labels = [];
         
@@ -219,7 +211,6 @@ class DashboardController extends Controller
         return Pengunjung::whereBetween('tanggal_kunjungan', [$start, $end])->count();
     }
     
-    // Method untuk data API jika diperlukan untuk AJAX
     public function getChartData(Request $request)
     {
         $periode = $request->get('periode', 'tahun_ini');
