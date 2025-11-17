@@ -23,11 +23,11 @@ Route::middleware([AdminMiddleware::class])->group(function () {
         return view('admin.manajemen-buku.index');
     })->name('admin.manajemen-buku');
 
-    Route::get('/admin/manajemen-anggota', function () {
-        return view('admin.manajemen-anggota.index');
-    })->name('admin.manajemen-anggota');
-
     Route::get('/admin/manajemen-admin', function () {
         return view('admin.manajemen-admin.index');
     })->name('admin.manajemen-admin');
+
+    Route::get('/admin/laporan', function () {
+        return view('admin.laporan.index');
+    })->name('admin.laporan');
 });

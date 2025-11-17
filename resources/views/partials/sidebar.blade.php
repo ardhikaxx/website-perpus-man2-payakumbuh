@@ -39,7 +39,7 @@
                 </a>
             </li> --}}
             <li>
-                <a href="#" class="{{ request()->routeIs('admin.laporan') ? 'active' : '' }}">
+                <a href="{{ route('admin.laporan') }}" class="{{ request()->routeIs('admin.laporan') ? 'active' : '' }}">
                     <i class="fas fa-chart-bar"></i>
                     <span class="menu-text">Laporan</span>
                 </a>
