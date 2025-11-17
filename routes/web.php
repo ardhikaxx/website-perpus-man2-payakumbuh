@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\PengunjungController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ManajemenAdminController;
 
 Route::get('/', function () {
     return view('index');
@@ -24,9 +25,13 @@ Route::middleware([AdminMiddleware::class])->group(function () {
         return view('admin.manajemen-buku.index');
     })->name('admin.manajemen-buku');
 
-    Route::get('/admin/manajemen-admin', function () {
-        return view('admin.manajemen-admin.index');
-    })->name('admin.manajemen-admin');
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/manajemen-admin', [ManajemenAdminController::class, 'index'])->name('manajemen-admin');
+        Route::post('/manajemen-admin', [ManajemenAdminController::class, 'store'])->name('manajemen-admin.store');
+        Route::get('/manajemen-admin/{id}', [ManajemenAdminController::class, 'show'])->name('manajemen-admin.show');
+        Route::put('/manajemen-admin/{id}', [ManajemenAdminController::class, 'update'])->name('manajemen-admin.update');
+        Route::delete('/manajemen-admin/{id}', [ManajemenAdminController::class, 'destroy'])->name('manajemen-admin.destroy');
+    });
 
     Route::get('/admin/laporan', function () {
         return view('admin.laporan.index');
