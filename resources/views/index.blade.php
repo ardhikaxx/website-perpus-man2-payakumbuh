@@ -739,14 +739,8 @@
 
                         <div class="mb-4">
                             <label for="keperluan" class="form-label">Keperluan</label>
-                            <select class="form-select" id="keperluan" required>
-                                <option value="" selected disabled>Pilih keperluan</option>
-                                <option value="Membaca">Membaca</option>
-                                <option value="Meminjam Buku">Meminjam Buku</option>
-                                <option value="Mengembalikan Buku">Mengembalikan Buku</option>
-                                <option value="Mencari Referensi">Mencari Referensi</option>
-                                <option value="Lainnya">Lainnya</option>
-                            </select>
+                            <input type="text" class="form-control" id="keperluan"
+                                placeholder="Contoh: Meminjam Buku, Membaca, dll." required>
                         </div>
 
                         <div class="mb-4">
