@@ -4,13 +4,11 @@
 @section('page-title', 'Dashboard Perpustakaan')
 
 @section('content')
-    <!-- Welcome Section -->
     <div class="dashboard-welcome">
-        <h2>Selamat Datang, Janett!</h2>
+        <h2>Selamat Datang, {{ Auth::guard('admin')->user()->nama_lengkap ?? 'Admin' }}!</h2>
         <p>Berikut adalah ringkasan aktivitas perpustakaan hari ini</p>
     </div>
 
-    <!-- Stats Cards -->
     <div class="stats-container">
         <div class="stat-card">
             <div class="stat-card-header">
@@ -35,7 +33,7 @@
             <div class="stat-card-header">
                 <div>
                     <div class="stat-card-title">Total Admin</div>
-                    <div class="stat-card-value">12</div>
+                    <div class="stat-card-value">{{ number_format($totalAdmin) }}</div>
                     <div class="stat-card-period">Pengelola</div>
                 </div>
                 <div class="stat-card-icon">
@@ -54,96 +52,131 @@
             <div class="stat-card-header">
                 <div>
                     <div class="stat-card-title">Total Pengunjung</div>
-                    <div class="stat-card-value">3,458</div>
-                    <div class="stat-card-period">Bulan Ini</div>
+                    <div class="stat-card-value">{{ number_format($totalPengunjung) }}</div>
+                    <div class="stat-card-period">Semua Waktu</div>
                 </div>
                 <div class="stat-card-icon">
                     <i class="fas fa-chart-line"></i>
                 </div>
             </div>
             <div class="stat-card-footer">
-                <div class="stat-card-trend trend-up">
-                    <i class="fas fa-arrow-up"></i> 12.5%
-                </div>
-                <span>Dari bulan lalu</span>
+                @if ($pengunjungStats['trend'] == 'up')
+                    <div class="stat-card-trend trend-up">
+                        <i class="fas fa-arrow-up"></i> {{ $pengunjungStats['persentase'] }}%
+                    </div>
+                @elseif($pengunjungStats['trend'] == 'down')
+                    <div class="stat-card-trend trend-down">
+                        <i class="fas fa-arrow-down"></i> {{ $pengunjungStats['persentase'] }}%
+                    </div>
+                @else
+                    <div class="stat-card-trend">
+                        <i class="fas fa-minus"></i> 0%
+                    </div>
+                @endif
+                <span>{{ $pengunjungStats['label'] }}</span>
             </div>
         </div>
     </div>
 
-    <!-- Chart Section -->
     <div class="chart-container">
         <div class="chart-header">
             <div class="chart-title">Grafik Pengunjung</div>
             <div class="chart-actions">
-                <select class="chart-period-selector">
-                    <option>Minggu Ini</option>
-                    <option>Bulan Ini</option>
-                    <option selected>Tahun Ini</option>
-                </select>
+                <form id="filterForm" method="GET" action="{{ route('admin.dashboard') }}">
+                    <select name="periode" class="chart-period-selector"
+                        onchange="document.getElementById('filterForm').submit()">
+                        <option value="minggu_ini" {{ $periode == 'minggu_ini' ? 'selected' : '' }}>Minggu Ini</option>
+                        <option value="bulan_ini" {{ $periode == 'bulan_ini' ? 'selected' : '' }}>Bulan Ini</option>
+                        <option value="tahun_ini" {{ $periode == 'tahun_ini' ? 'selected' : '' }}>Tahun Ini</option>
+                    </select>
+                </form>
             </div>
         </div>
 
         <div class="chart-area">
             <div class="chart-bars">
-                <div class="chart-bar" data-height="120" data-value="42" data-label="Januari">
-                    <div class="chart-bar-value">42</div>
-                </div>
-                <div class="chart-bar" data-height="150" data-value="53" data-label="Februari">
-                    <div class="chart-bar-value">53</div>
-                </div>
-                <div class="chart-bar" data-height="180" data-value="64" data-label="Maret">
-                    <div class="chart-bar-value">64</div>
-                </div>
-                <div class="chart-bar" data-height="160" data-value="57" data-label="April">
-                    <div class="chart-bar-value">57</div>
-                </div>
-                <div class="chart-bar" data-height="190" data-value="68" data-label="Mei">
-                    <div class="chart-bar-value">68</div>
-                </div>
-                <div class="chart-bar chart-bar-highlight" data-height="220" data-value="79" data-label="Juni">
-                    <div class="chart-bar-value">79</div>
-                </div>
-                <div class="chart-bar" data-height="200" data-value="72" data-label="Juli">
-                    <div class="chart-bar-value">72</div>
-                </div>
-                <div class="chart-bar" data-height="170" data-value="61" data-label="Agustus">
-                    <div class="chart-bar-value">61</div>
-                </div>
-                <div class="chart-bar" data-height="140" data-value="50" data-label="September">
-                    <div class="chart-bar-value">50</div>
-                </div>
-                <div class="chart-bar" data-height="160" data-value="57" data-label="Oktober">
-                    <div class="chart-bar-value">57</div>
-                </div>
-                <div class="chart-bar" data-height="180" data-value="64" data-label="November">
-                    <div class="chart-bar-value">64</div>
-                </div>
-                <div class="chart-bar" data-height="210" data-value="75" data-label="Desember">
-                    <div class="chart-bar-value">75</div>
-                </div>
+                @php
+                    $maxData = max($grafikData['data']) > 0 ? max($grafikData['data']) : 1;
+                    $currentMonth = Carbon\Carbon::now()->month;
+                    $currentDay = Carbon\Carbon::now()->day;
+                    $currentWeekDay = Carbon\Carbon::now()->dayOfWeek;
+                @endphp
+
+                @foreach ($grafikData['data'] as $index => $value)
+                    @php
+                        $height = $maxData > 0 ? ($value / $maxData) * 180 : 5;
+                        $isCurrent = false;
+
+                        if ($grafikData['type'] == 'tahun' && $index + 1 == $currentMonth) {
+                            $isCurrent = true;
+                        } elseif ($grafikData['type'] == 'bulan') {
+                            $groupSize = ceil(Carbon\Carbon::now()->daysInMonth / $grafikData['total_items']);
+                            $startDay = $index * $groupSize + 1;
+                            $endDay = min(($index + 1) * $groupSize, Carbon\Carbon::now()->daysInMonth);
+                            $isCurrent = $currentDay >= $startDay && $currentDay <= $endDay;
+                        } elseif ($grafikData['type'] == 'minggu') {
+                            $isCurrent = $index == $currentWeekDay - 1;
+                        }
+                    @endphp
+
+                    <div class="chart-bar {{ $isCurrent ? 'chart-bar-highlight' : '' }}"
+                        style="height: {{ $height }}px" data-value="{{ $value }}"
+                        data-label="{{ $grafikData['labels'][$index] }}"
+                        title="{{ $grafikData['labels'][$index] }}: {{ $value }} pengunjung">
+                        <div class="chart-bar-value">{{ $value }}</div>
+                    </div>
+                @endforeach
             </div>
 
             <div class="chart-labels">
-                <div class="chart-label">Jan</div>
-                <div class="chart-label">Feb</div>
-                <div class="chart-label">Mar</div>
-                <div class="chart-label">Apr</div>
-                <div class="chart-label">Mei</div>
-                <div class="chart-label">Jun</div>
-                <div class="chart-label">Jul</div>
-                <div class="chart-label">Agu</div>
-                <div class="chart-label">Sep</div>
-                <div class="chart-label">Okt</div>
-                <div class="chart-label">Nov</div>
-                <div class="chart-label">Des</div>
+                @foreach ($grafikData['labels'] as $label)
+                    <div class="chart-label" title="{{ $label }}">{{ $label }}</div>
+                @endforeach
             </div>
 
             <div class="chart-stats">
                 <div class="chart-stat-item">
-                    <div class="chart-stat-value">245</div>
-                    <div class="chart-stat-label">Total Pengunjung Tahun Ini</div>
+                    <div class="chart-stat-value">{{ $totalGrafik }}</div>
+                    <div class="chart-stat-label">
+                        Total Pengunjung
+                        @if ($periode == 'minggu_ini')
+                            Minggu Ini
+                        @elseif($periode == 'bulan_ini')
+                            Bulan Ini
+                        @else
+                            Tahun Ini
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chartBars = document.querySelectorAll('.chart-bar');
+
+            chartBars.forEach(bar => {
+                bar.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.05)';
+                    this.style.opacity = '0.9';
+                });
+
+                bar.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                    this.style.opacity = '1';
+                });
+            });
+
+            setTimeout(() => {
+                chartBars.forEach((bar, index) => {
+                    setTimeout(() => {
+                        bar.style.transition = 'all 0.5s ease';
+                    }, index * 100);
+                });
+            }, 500);
+        });
+    </script>
+@endpush

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\PengunjungController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
     return view('index');
@@ -17,9 +18,7 @@ Route::post('/auth/login', [AuthController::class, 'login'])->name('admin.login.
 Route::post('/auth/logout', [AuthController::class, 'logout'])->name('admin.logout');
 
 Route::middleware([AdminMiddleware::class])->group(function () {
-    Route::get('/admin/dashboard', function () {
-        return view('admin.dashboard.index');
-    })->name('admin.dashboard');
+    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     Route::get('/admin/manajemen-buku', function () {
         return view('admin.manajemen-buku.index');

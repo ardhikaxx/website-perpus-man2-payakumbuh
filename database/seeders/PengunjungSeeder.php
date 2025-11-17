@@ -74,7 +74,7 @@ class PengunjungSeeder extends Seeder
 
         $pengunjungData = [];
 
-        for ($i = 0; $i < 100; $i++) {
+        for ($i = 0; $i < 500; $i++) {
             $nama = $namaLengkap[array_rand($namaLengkap)];
             $jenisKelaminValue = $jenisKelamin[array_rand($jenisKelamin)];
             $usia = rand(15, 60);
