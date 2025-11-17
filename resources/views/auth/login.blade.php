@@ -78,6 +78,11 @@
                 <button type="submit" class="btn btn-auth mb-3">
                     <i class="fas fa-sign-in-alt me-2"></i>Masuk
                 </button>
+
+                <!-- Tombol Kembali ke Beranda dengan style yang sama -->
+                <a href="{{ route('home') }}" class="btn btn-back-home w-100">
+                    <i class="fas fa-home me-2"></i>Kembali ke Beranda
+                </a>
             </form>
 
             <div class="auth-footer">

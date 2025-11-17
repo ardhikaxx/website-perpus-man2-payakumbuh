@@ -6,14 +6,12 @@ use App\Http\Middleware\AdminMiddleware;
 
 Route::get('/', function () {
     return view('index');
-});
+})->name('home');
 
-// Auth Routes
 Route::get('/auth/login', [AuthController::class, 'showLoginForm'])->name('admin.login');
 Route::post('/auth/login', [AuthController::class, 'login'])->name('admin.login.submit');
 Route::post('/auth/logout', [AuthController::class, 'logout'])->name('admin.logout');
 
-// Admin Routes dengan middleware
 Route::middleware([AdminMiddleware::class])->group(function () {
     Route::get('/admin/dashboard', function () {
         return view('admin.dashboard.index');
