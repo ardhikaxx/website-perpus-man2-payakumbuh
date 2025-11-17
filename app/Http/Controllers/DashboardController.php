@@ -58,7 +58,7 @@ class DashboardController extends Controller
         if ($pengunjungBulanLalu > 0) {
             $persentase = (($pengunjungBulanIni - $pengunjungBulanLalu) / $pengunjungBulanLalu) * 100;
         } elseif ($pengunjungBulanIni > 0) {
-            $persentase = 100; // Jika bulan lalu 0 dan bulan ini ada data
+            $persentase = 100;
         }
         
         // Tentukan trend

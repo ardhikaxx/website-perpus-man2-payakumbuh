@@ -561,18 +561,6 @@
                     sidebar.classList.remove('hidden');
                 }
             });
-
-            const bars = document.querySelectorAll('.chart-bar');
-            bars.forEach(bar => {
-                const height = bar.getAttribute('data-height');
-                bar.style.height = height + 'px';
-
-                bar.addEventListener('click', function() {
-                    const value = this.getAttribute('data-value');
-                    const label = this.getAttribute('data-label');
-                    alert(`Peminjaman pada ${label}: ${value} buku`);
-                });
-            });
         });
     </script>
     @stack('scripts')

@@ -40,12 +40,12 @@
                     <i class="fas fa-user-shield"></i>
                 </div>
             </div>
-            <div class="stat-card-footer">
+            <a href="{{ route('admin.manajemen-admin') }}" class="stat-card-footer d-flex justify-content-between align-items-center text-decoration-none text-dark">
+                <span>Lihat Semua</span>
                 <div class="stat-card-trend">
-                    <i class="fas fa-minus"></i> 0%
+                    <i class="fas fa-chevron-right"></i>
                 </div>
-                <span>Tidak berubah</span>
-            </div>
+            </a>
         </div>
 
         <div class="stat-card">

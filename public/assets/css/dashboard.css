@@ -186,7 +186,7 @@
     flex: 1;
     margin: 0 5px;
     background: linear-gradient(to top, var(--accent-color), var(--secondary-color));
-    border-radius: 4px 4px 0 0;
+    border-radius: 20px 20px 0 0;
     position: relative;
     transition: all 0.3s ease;
     cursor: pointer;
