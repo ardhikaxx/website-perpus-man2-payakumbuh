@@ -1,0 +1,64 @@
+<div class="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <img src="{{ asset('assets/logo-website.png') }}" class="full-logo" alt="Logo MAN 2 Payakumbuh">
+            <img src="{{ asset('assets/logo-side.png') }}" class="side-logo" alt="Logo MAN 2 Payakumbuh">
+        </div>
+        <div class="toggle-sidebar">
+            <i class="fas fa-chevron-left"></i>
+        </div>
+    </div>
+
+    <div class="sidebar-menu">
+        <ul>
+            <li>
+                <a href="{{ route('admin.dashboard') }}" class="active">
+                    <i class="fas fa-home"></i>
+                    <span class="menu-text">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('admin.manajemen-buku') }}">
+                    <i class="fas fa-book-open"></i>
+                    <span class="menu-text">Manajemen Buku</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="fas fa-users"></i>
+                    <span class="menu-text">Manajemen Anggota</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span class="menu-text">Peminjaman</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="fas fa-undo-alt"></i>
+                    <span class="menu-text">Pengembalian</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="fas fa-chart-bar"></i>
+                    <span class="menu-text">Laporan</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="fas fa-cog"></i>
+                    <span class="menu-text">Pengaturan</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="mobile-close">
+            <button id="mobileCloseSidebar">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+    </div>
+</div>
