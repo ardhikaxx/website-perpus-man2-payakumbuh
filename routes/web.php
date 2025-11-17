@@ -21,3 +21,7 @@ Route::get('/admin/manajemen-buku', function () {
 Route::get('/admin/manajemen-anggota', function () {
     return view('admin.manajemen-anggota.index');
 })->name('admin.manajemen-anggota');
+
+Route::get('/admin/manajemen-admin', function () {
+    return view('admin.manajemen-admin.index');
+})->name('admin.manajemen-admin');

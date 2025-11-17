@@ -45,6 +45,12 @@
                 </a>
             </li>
             <li>
+                <a href="{{ route('admin.manajemen-admin') }}" class="{{ request()->routeIs('admin.manajemen-admin') ? 'active' : '' }}">
+                    <i class="fas fa-user-shield"></i>
+                    <span class="menu-text">Manajemen Admin</span>
+                </a>
+            </li>
+            <li>
                 <a href="#" class="{{ request()->routeIs('admin.pengaturan') ? 'active' : '' }}">
                     <i class="fas fa-cog"></i>
                     <span class="menu-text">Pengaturan</span>
