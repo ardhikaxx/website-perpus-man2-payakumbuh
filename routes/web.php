@@ -3,10 +3,14 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Controllers\PengunjungController;
 
 Route::get('/', function () {
     return view('index');
 })->name('home');
+
+Route::post('/pengunjung', [PengunjungController::class, 'store'])->name('pengunjung.store');
+Route::get('/pengunjung/hari-ini', [PengunjungController::class, 'getPengunjungHariIni'])->name('pengunjung.hari-ini');
 
 Route::get('/auth/login', [AuthController::class, 'showLoginForm'])->name('admin.login');
 Route::post('/auth/login', [AuthController::class, 'login'])->name('admin.login.submit');

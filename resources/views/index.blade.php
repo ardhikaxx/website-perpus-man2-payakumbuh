@@ -687,7 +687,7 @@
                 </div>
                 <div class="card-body">
                     <div class="visitor-count">
-                        <h3 id="totalPengunjung">15</h3>
+                        <h3 id="totalPengunjung">0</h3>
                         <p>Total Pengunjung Hari Ini</p>
                     </div>
 
@@ -767,127 +767,152 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        const sampleVisitors = [{
-                name: "Ahmad Rizki",
-                time: "08:15",
-                purpose: "Meminjam Buku"
-            },
-            {
-                name: "Siti Nurhaliza",
-                time: "09:30",
-                purpose: "Membaca"
-            },
-            {
-                name: "Budi Santoso",
-                time: "10:05",
-                purpose: "Mencari Referensi"
-            },
-            {
-                name: "Maya Sari",
-                time: "11:20",
-                purpose: "Mengembalikan Buku"
-            },
-            {
-                name: "Rina Anggraeni",
-                time: "13:45",
-                purpose: "Meminjam Buku"
-            },
-            {
-                name: "Dedi Pratama",
-                time: "14:10",
-                purpose: "Membaca"
-            },
-            {
-                name: "Fajar Nugroho",
-                time: "15:30",
-                purpose: "Mencari Referensi"
-            },
-            {
-                name: "Lia Amelia",
-                time: "16:05",
-                purpose: "Membaca"
-            }
-        ];
+        // Fungsi untuk memformat tanggal
+        function formatTanggal(tanggal) {
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            };
+            return new Date(tanggal).toLocaleDateString('id-ID', options);
+        }
 
-        function renderVisitorList() {
+        // Fungsi untuk merender daftar pengunjung
+        function renderVisitorList(pengunjung) {
             const visitorList = document.getElementById('visitorList');
             visitorList.innerHTML = '';
 
-            sampleVisitors.forEach(visitor => {
-                const firstLetter = visitor.name.charAt(0).toUpperCase();
-                const currentDate = new Date().toLocaleDateString('id-ID', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
+            if (pengunjung.length === 0) {
+                visitorList.innerHTML = `
+                <div class="text-center py-4">
+                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Belum ada pengunjung hari ini</p>
+                </div>
+            `;
+                return;
+            }
+
+            pengunjung.forEach(visitor => {
+                const firstLetter = visitor.nama_lengkap.charAt(0).toUpperCase();
 
                 const visitorItem = document.createElement('div');
                 visitorItem.className = 'visitor-item';
                 visitorItem.innerHTML = `
-                    <div class="visitor-avatar">${firstLetter}</div>
-                    <div class="visitor-info">
-                        <div class="visitor-name">${visitor.name}</div>
-                        <div class="visitor-details">
-                            <div class="visitor-detail">
-                                <i class="fas fa-calendar-alt"></i>
-                                <span>${currentDate}</span>
-                            </div>
-                            <div class="visitor-detail">
-                                <i class="fas fa-clock"></i>
-                                <span>${visitor.time} WIB</span>
-                            </div>
-                            <div class="visitor-detail">
-                                <i class="fas fa-tag"></i>
-                                <span>${visitor.purpose}</span>
-                            </div>
+                <div class="visitor-avatar">${firstLetter}</div>
+                <div class="visitor-info">
+                    <div class="visitor-name">${visitor.nama_lengkap}</div>
+                    <div class="visitor-details">
+                        <div class="visitor-detail">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>${formatTanggal(visitor.tanggal_kunjungan)}</span>
                         </div>
+                        <div class="visitor-detail">
+                            <i class="fas fa-clock"></i>
+                            <span>${visitor.jam_kunjungan} WIB</span>
+                        </div>
+                        <div class="visitor-detail">
+                            <i class="fas fa-tag"></i>
+                            <span>${visitor.keperluan}</span>
+                        </div>
+                        ${visitor.yang_dicari ? `
+                            <div class="visitor-detail">
+                                <i class="fas fa-search"></i>
+                                <span>${visitor.yang_dicari}</span>
+                            </div>
+                            ` : ''}
                     </div>
-                `;
+                </div>
+            `;
 
                 visitorList.appendChild(visitorItem);
             });
 
-            document.getElementById('totalPengunjung').textContent = sampleVisitors.length;
+            document.getElementById('totalPengunjung').textContent = pengunjung.length;
         }
 
-        document.getElementById('visitorForm').addEventListener('submit', function(e) {
+        // Fungsi untuk mengambil data pengunjung dari API
+        async function loadPengunjungHariIni() {
+            try {
+                const response = await fetch('/pengunjung/hari-ini');
+                const data = await response.json();
+
+                if (data.pengunjung) {
+                    renderVisitorList(data.pengunjung);
+                }
+            } catch (error) {
+                console.error('Error loading pengunjung:', error);
+            }
+        }
+
+        // Event listener untuk form submission
+        document.getElementById('visitorForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            const nama = document.getElementById('nama').value;
-            const jenisKelamin = document.getElementById('jenisKelamin').value;
-            const usia = document.getElementById('usia').value;
-            const keperluan = document.getElementById('keperluan').value;
-            const pencarian = document.getElementById('pencarian').value;
-            const saran = document.getElementById('saran').value;
+            // Tampilkan loading state
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Menyimpan...';
+            submitButton.disabled = true;
 
-            const modal = bootstrap.Modal.getInstance(document.getElementById('visitorModal'));
-            modal.hide();
+            try {
+                const formData = {
+                    nama_lengkap: document.getElementById('nama').value,
+                    jenis_kelamin: document.getElementById('jenisKelamin').value,
+                    usia: document.getElementById('usia').value,
+                    keperluan: document.getElementById('keperluan').value,
+                    yang_dicari: document.getElementById('pencarian').value,
+                    saran_masukan: document.getElementById('saran').value,
+                    _token: '{{ csrf_token() }}' // CSRF token langsung dari Laravel
+                };
 
-            setTimeout(() => {
-                alert(`Terima kasih ${nama}! Data Anda telah berhasil disimpan.`);
-            }, 300);
+                const response = await fetch('/pengunjung', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify(formData)
+                });
 
-            document.getElementById('visitorForm').reset();
+                const result = await response.json();
 
-            const currentTime = new Date();
-            const timeString = currentTime.toLocaleTimeString('id-ID', {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+                if (result.success) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('visitorModal'));
+                    modal.hide();
 
-            sampleVisitors.unshift({
-                name: nama,
-                time: timeString,
-                purpose: keperluan
-            });
+                    // Tampilkan alert sukses
+                    setTimeout(() => {
+                        alert(
+                            `Terima kasih ${document.getElementById('nama').value}! Data Anda telah berhasil disimpan.`);
+                    }, 300);
 
-            renderVisitorList();
+                    // Reset form
+                    document.getElementById('visitorForm').reset();
+
+                    // Reload daftar pengunjung
+                    await loadPengunjungHariIni();
+                } else {
+                    alert('Gagal menyimpan data: ' + result.message);
+                    console.error('Server error:', result);
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+                alert('Terjadi kesalahan jaringan saat menyimpan data.');
+            } finally {
+                // Reset button state
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+            }
         });
 
+        // Inisialisasi saat DOM siap
         document.addEventListener('DOMContentLoaded', function() {
-            renderVisitorList();
+            // Load data pengunjung saat halaman dimuat
+            loadPengunjungHariIni();
 
+            // Setup intersection observer untuk animasi
             const observerOptions = {
                 threshold: 0.1,
                 rootMargin: '0px 0px -50px 0px'
