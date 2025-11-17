@@ -4,9 +4,6 @@
             <img src="{{ asset('assets/logo-website.png') }}" class="full-logo" alt="Logo MAN 2 Payakumbuh">
             <img src="{{ asset('assets/logo-side.png') }}" class="side-logo" alt="Logo MAN 2 Payakumbuh">
         </div>
-        <div class="toggle-sidebar">
-            <i class="fas fa-chevron-left"></i>
-        </div>
     </div>
 
     <div class="sidebar-menu">
@@ -61,4 +58,8 @@
             </button>
         </div>
     </div>
+</div>
+
+<div class="toggle-sidebar">
+    <i class="fas fa-chevron-left"></i>
 </div>

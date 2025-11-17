@@ -48,7 +48,7 @@
             background: #ffffff;
             color: #333;
             position: fixed;
-            height: 100vh;
+            height: 150vh;
             overflow-y: auto;
             transition: all var(--transition-speed) ease;
             z-index: 1000;
@@ -101,32 +101,39 @@
         }
 
         .toggle-sidebar {
-            z-index: 1100;
-            position: absolute;
-            right: -12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: white;
+            position: fixed;
+            left: 265px;
+            top: 32px;
+            width: 32px;
+            height: 32px;
+            color: #ffff;
+            font-size: 20px;
+            background: var(--primary-color);
+            border: 2px solid #e2e8f0;
             border-radius: 50%;
-            width: 24px;
-            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: var(--shadow-medium);
-            color: var(--primary-color);
-            border: 1px solid #e0e0e0;
-            transition: all var(--transition-speed);
+            z-index: 1100;
+            transition: all 0.3s ease;
         }
 
         .toggle-sidebar:hover {
-            background: var(--light-color);
-            transform: translateY(-50%) scale(1.1);
-            box-shadow: var(--shadow-heavy);
+            background: var(--dark-color);
+            color: #ffff;
+            transform: scale(1.1);
         }
 
-        .sidebar.collapsed .toggle-sidebar i {
+        .toggle-sidebar i {
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed+.toggle-sidebar {
+            left: 65px;
+        }
+
+        .sidebar.collapsed+.toggle-sidebar i {
             transform: rotate(180deg);
         }
 
@@ -511,7 +518,6 @@
             const mobileCloseSidebar = document.getElementById('mobileCloseSidebar');
             const mainContent = document.querySelector('.main-content');
 
-            // Toggle sidebar pada desktop
             toggleSidebar.addEventListener('click', function() {
                 sidebar.classList.toggle('collapsed');
             });
@@ -540,13 +546,11 @@
                 }
             });
 
-            // Chart bar animation
             const bars = document.querySelectorAll('.chart-bar');
             bars.forEach(bar => {
                 const height = bar.getAttribute('data-height');
                 bar.style.height = height + 'px';
 
-                // Add click event to show more details
                 bar.addEventListener('click', function() {
                     const value = this.getAttribute('data-value');
                     const label = this.getAttribute('data-label');
