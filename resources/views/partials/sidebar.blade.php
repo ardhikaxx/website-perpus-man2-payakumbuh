@@ -20,7 +20,7 @@
                     <span class="menu-text">Manajemen Buku</span>
                 </a>
             </li>
-            <li>
+            {{-- <li>
                 <a href="{{ route('admin.manajemen-anggota') }}" class="{{ request()->routeIs('admin.manajemen-anggota') ? 'active' : '' }}">
                     <i class="fas fa-users"></i>
                     <span class="menu-text">Manajemen Anggota</span>
@@ -37,7 +37,7 @@
                     <i class="fas fa-undo-alt"></i>
                     <span class="menu-text">Pengembalian</span>
                 </a>
-            </li>
+            </li> --}}
             <li>
                 <a href="#" class="{{ request()->routeIs('admin.laporan') ? 'active' : '' }}">
                     <i class="fas fa-chart-bar"></i>
