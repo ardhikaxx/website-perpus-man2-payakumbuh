@@ -8,6 +8,7 @@
     <title>@yield('title', 'Sistem Perpustakaan MAN 2 Kota Payakumbuh')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}">
     <style>
         :root {
@@ -492,6 +493,21 @@
             .user-info {
                 display: none;
             }
+        }
+
+        .swal2-popup {
+            border-radius: 25px !important;
+        }
+
+        .swal2-title {
+            font-size: 1.5rem !important;
+            font-weight: 600 !important;
+            color: #2d3748 !important;
+        }
+
+        .swal2-html-container {
+            font-size: 1rem !important;
+            color: #718096 !important;
         }
     </style>
 

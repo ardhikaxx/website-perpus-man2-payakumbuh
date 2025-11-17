@@ -650,7 +650,7 @@
             </div>
 
             <div class="cta-buttons slide-up">
-                <a href="/auth/login" class="btn btn-login">
+                <a href="{{ route('admin.login') }}" class="btn btn-login">
                     <i class="fas fa-sign-in-alt"></i>
                     Login ke Sistem
                 </a>
