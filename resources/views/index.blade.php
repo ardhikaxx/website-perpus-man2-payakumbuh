@@ -216,9 +216,9 @@
             bottom: -10px;
             left: 50%;
             transform: translateX(-50%);
-            width: 100px;
+            width: 350px;
             height: 4px;
-            background: var(--light-color);
+            background: #ffff;
             border-radius: 2px;
         }
 
@@ -820,7 +820,7 @@
             visitorList.innerHTML = '';
 
             sampleVisitors.forEach(visitor => {
-                const firstLetter = visitor.name.charAt(0);
+                const firstLetter = visitor.name.charAt(0).toUpperCase();
                 const currentDate = new Date().toLocaleDateString('id-ID', {
                     weekday: 'long',
                     year: 'numeric',
