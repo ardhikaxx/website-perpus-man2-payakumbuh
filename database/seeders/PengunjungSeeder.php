@@ -101,7 +101,5 @@ class PengunjungSeeder extends Seeder
         }
 
         Pengunjung::insert($pengunjungData);
-
-        $this->command->info('Berhasil menambahkan 100 data pengunjung!');
     }
 }
