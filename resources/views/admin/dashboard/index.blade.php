@@ -60,7 +60,6 @@
             </a>
         </div>
 
-        <!-- Stat Card untuk Total Pengunjung -->
         <div class="stat-card">
             <div class="stat-card-header">
                 <div>
@@ -93,7 +92,7 @@
 
     <div class="chart-container">
         <div class="chart-header">
-            <div class="chart-title">Grafik Pengunjung</div>
+            <div class="chart-title">Grafik Pengunjung Perpustakaan</div>
             <div class="chart-actions">
                 <form id="filterForm" method="GET" action="{{ route('admin.dashboard') }}">
                     <select name="periode" class="chart-period-selector"
