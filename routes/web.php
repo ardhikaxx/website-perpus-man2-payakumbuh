@@ -30,4 +30,8 @@ Route::middleware([AdminMiddleware::class])->group(function () {
     Route::get('/admin/laporan', function () {
         return view('admin.laporan.index');
     })->name('admin.laporan');
+
+    Route::get('/admin/pengaturan', function () {
+        return view('admin.pengaturan.index');
+    })->name('admin.pengaturan');
 });

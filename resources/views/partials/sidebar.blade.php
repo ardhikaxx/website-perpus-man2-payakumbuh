@@ -51,7 +51,7 @@
                 </a>
             </li>
             <li>
-                <a href="#" class="{{ request()->routeIs('admin.pengaturan') ? 'active' : '' }}">
+                <a href="{{ route('admin.pengaturan') }}" class="{{ request()->routeIs('admin.pengaturan') ? 'active' : '' }}">
                     <i class="fas fa-cog"></i>
                     <span class="menu-text">Pengaturan</span>
                 </a>
