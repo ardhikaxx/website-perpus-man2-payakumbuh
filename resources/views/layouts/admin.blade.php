@@ -321,28 +321,6 @@
             gap: 20px;
         }
 
-        .notification-icon {
-            position: relative;
-            cursor: pointer;
-            color: var(--primary-color);
-            font-size: 20px;
-        }
-
-        .notification-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #ff4757;
-            color: white;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            font-size: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
         .user-profile {
             display: flex;
             align-items: center;
@@ -364,12 +342,30 @@
             box-shadow: var(--shadow-light);
         }
 
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .avatar-header {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
         .user-info .user-name {
             font-weight: 600;
             font-size: 14px;
         }
 
-        .user-info .user-role {
+        .user-info .user-email {
             font-size: 12px;
             color: #6c757d;
         }

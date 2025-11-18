@@ -7,6 +7,7 @@ use App\Http\Controllers\PengunjungController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ManajemenAdminController;
 use App\Http\Controllers\ManajemenBukuController;
+use App\Http\Controllers\PengaturanController;
 
 Route::get('/', function () {
     return view('index');
@@ -22,29 +23,25 @@ Route::post('/auth/logout', [AuthController::class, 'logout'])->name('admin.logo
 Route::middleware([AdminMiddleware::class])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
-    Route::get('/admin/manajemen-buku', function () {
-        return view('admin.manajemen-buku.index');
-    })->name('admin.manajemen-buku');
-
     Route::prefix('admin')->name('admin.')->group(function () {
-Route::get('/manajemen-buku', [ManajemenBukuController::class, 'index'])->name('manajemen-buku');
-    Route::post('/manajemen-buku', [ManajemenBukuController::class, 'store'])->name('manajemen-buku.store');
-    Route::get('/manajemen-buku/{id}', [ManajemenBukuController::class, 'show'])->name('manajemen-buku.show');
-    Route::put('/manajemen-buku/{id}', [ManajemenBukuController::class, 'update'])->name('manajemen-buku.update');
-    Route::delete('/manajemen-buku/{id}', [ManajemenBukuController::class, 'destroy'])->name('manajemen-buku.destroy');
+        Route::get('/manajemen-buku', [ManajemenBukuController::class, 'index'])->name('manajemen-buku');
+        Route::post('/manajemen-buku', [ManajemenBukuController::class, 'store'])->name('manajemen-buku.store');
+        Route::get('/manajemen-buku/{id}', [ManajemenBukuController::class, 'show'])->name('manajemen-buku.show');
+        Route::put('/manajemen-buku/{id}', [ManajemenBukuController::class, 'update'])->name('manajemen-buku.update');
+        Route::delete('/manajemen-buku/{id}', [ManajemenBukuController::class, 'destroy'])->name('manajemen-buku.destroy');
 
         Route::get('/manajemen-admin', [ManajemenAdminController::class, 'index'])->name('manajemen-admin');
         Route::post('/manajemen-admin', [ManajemenAdminController::class, 'store'])->name('manajemen-admin.store');
         Route::get('/manajemen-admin/{id}', [ManajemenAdminController::class, 'show'])->name('manajemen-admin.show');
         Route::put('/manajemen-admin/{id}', [ManajemenAdminController::class, 'update'])->name('manajemen-admin.update');
         Route::delete('/manajemen-admin/{id}', [ManajemenAdminController::class, 'destroy'])->name('manajemen-admin.destroy');
+
+        Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('pengaturan');
+        Route::post('/pengaturan/update-profile', [PengaturanController::class, 'updateProfile'])->name('pengaturan.update-profile');
+        Route::post('/pengaturan/update-password', [PengaturanController::class, 'updatePassword'])->name('pengaturan.update-password');
     });
 
     Route::get('/admin/laporan', function () {
         return view('admin.laporan.index');
     })->name('admin.laporan');
-
-    Route::get('/admin/pengaturan', function () {
-        return view('admin.pengaturan.index');
-    })->name('admin.pengaturan');
 });
