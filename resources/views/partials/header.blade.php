@@ -24,13 +24,9 @@
             </div>
 
             <div class="user-dropdown">
-                <a href="#">
+                <a href="{{ route('admin.pengaturan') }}">
                     <i class="fas fa-user-circle"></i>
                     Profil Saya
-                </a>
-                <a href="#">
-                    <i class="fas fa-cog"></i>
-                    Pengaturan
                 </a>
                 <a href="#" id="logout-link">
                     <i class="fas fa-sign-out-alt"></i>
