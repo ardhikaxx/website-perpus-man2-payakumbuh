@@ -7,6 +7,7 @@ use App\Http\Controllers\PengunjungController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ManajemenAdminController;
 use App\Http\Controllers\ManajemenBukuController;
+use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\PengaturanController;
 
 Route::get('/', function () {
@@ -21,9 +22,10 @@ Route::post('/auth/login', [AuthController::class, 'login'])->name('admin.login.
 Route::post('/auth/logout', [AuthController::class, 'logout'])->name('admin.logout');
 
 Route::middleware([AdminMiddleware::class])->group(function () {
-    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
         Route::get('/manajemen-buku', [ManajemenBukuController::class, 'index'])->name('manajemen-buku');
         Route::post('/manajemen-buku', [ManajemenBukuController::class, 'store'])->name('manajemen-buku.store');
         Route::get('/manajemen-buku/{id}', [ManajemenBukuController::class, 'show'])->name('manajemen-buku.show');
@@ -36,12 +38,11 @@ Route::middleware([AdminMiddleware::class])->group(function () {
         Route::put('/manajemen-admin/{id}', [ManajemenAdminController::class, 'update'])->name('manajemen-admin.update');
         Route::delete('/manajemen-admin/{id}', [ManajemenAdminController::class, 'destroy'])->name('manajemen-admin.destroy');
 
+        Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan');
+        Route::get('/laporan/export', [LaporanController::class, 'export'])->name('laporan.export');
+
         Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('pengaturan');
         Route::post('/pengaturan/update-profile', [PengaturanController::class, 'updateProfile'])->name('pengaturan.update-profile');
         Route::post('/pengaturan/update-password', [PengaturanController::class, 'updatePassword'])->name('pengaturan.update-password');
     });
-
-    Route::get('/admin/laporan', function () {
-        return view('admin.laporan.index');
-    })->name('admin.laporan');
 });
