@@ -1,6 +1,31 @@
 ---
 deployment:
   tasks:
-    - /bin/cp -R /home/pzjehtnb/repositories/website-perpus-man2-payakumbuh/* /home/pzjehtnb/public_html/
+    - export DEPLOYPATH=/home/pzjehtnb/repositories/website-perpus-man2-payakumbuh/
+    
+    # Sync files to public_html
+    - /bin/cp -R $DEPLOYPATH /home/pzjehtnb/public_html/
+    
+    # Set proper permissions
     - /bin/chmod -R 755 /home/pzjehtnb/public_html/
+    - /bin/chmod -R 644 /home/pzjehtnb/public_html/*.php
+    - /bin/chmod -R 644 /home/pzjehtnb/public_html/*.css
+    - /bin/chmod -R 644 /home/pzjehtnb/public_html/*.js
+    - /bin/chmod -R 644 /home/pzjehtnb/public_html/*.html
+    
+    # Set ownership
     - /bin/chown -R pzjehtnb:pzjehtnb /home/pzjehtnb/public_html/
+    
+    # Database operations (jika diperlukan)
+    # - /usr/bin/mysql -u username -p password database_name < $DEPLOYPATH/database.sql
+    
+    # Composer install (jika menggunakan PHP framework)
+    # - /usr/local/bin/php /home/pzjehtnb/composer.phar install --working-dir=$DEPLOYPATH
+    
+    # Run migrations (jika menggunakan framework dengan database migration)
+    # - /usr/local/bin/php $DEPLOYPATH/artisan migrate --force
+    
+    # Clear cache (jika menggunakan framework)
+    # - /usr/local/bin/php $DEPLOYPATH/artisan cache:clear
+    # - /usr/local/bin/php $DEPLOYPATH/artisan config:clear
+    # - /usr/local/bin/php $DEPLOYPATH/artisan view:clear
