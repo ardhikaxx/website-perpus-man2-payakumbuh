@@ -183,7 +183,7 @@
         .sidebar-menu a:hover,
         .sidebar-menu a.active {
             color: var(--primary-color);
-            border-left: 4px solid var(--accent-color);
+            border-left: 5px solid var(--dark-color);
             background: rgba(1, 116, 123, 0.05);
         }
 
