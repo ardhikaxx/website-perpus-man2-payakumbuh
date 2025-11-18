@@ -57,71 +57,31 @@
                     Daftar Koleksi Buku
                 </h3>
             </div>
+            
+            <!-- Search and Filter Section -->
+            <div class="buku-toolbar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Cari judul, pengarang, atau penerbit..." 
+                           value="{{ $search }}" onkeyup="handleSearch(event)">
+                    <button class="btn-clear-search" onclick="clearSearch()" style="{{ $search ? '' : 'display: none;' }}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="toolbar-actions">
+                    <select id="perPageSelect" class="form-select per-page-select" onchange="changePerPage(this.value)">
+                        <option value="5" {{ request('per_page', 10) == 5 ? 'selected' : '' }}>5 per halaman</option>
+                        <option value="10" {{ request('per_page', 10) == 10 ? 'selected' : '' }}>10 per halaman</option>
+                        <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25 per halaman</option>
+                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50 per halaman</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="card-body p-0">
-                @if ($bukus->count() > 0)
-                    <div class="table-responsive">
-                        <table class="buku-table table table-borderless">
-                            <thead>
-                                <tr>
-                                    <th width="70"></th>
-                                    <th>Informasi Buku</th>
-                                    <th width="100">Tahun</th>
-                                    <th width="100">Halaman</th>
-                                    <th width="120" class="text-end">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($bukus as $buku)
-                                    <tr>
-                                        <td>
-                                            <div class="book-icon">
-                                                <i class="fas fa-book"></i>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="buku-info">
-                                                <div class="buku-judul">{{ $buku->judul_buku }}</div>
-                                                <div class="buku-detail">
-                                                    <span class="buku-pengarang">{{ $buku->pengarang }}</span>
-                                                    <span class="buku-penerbit">{{ $buku->penerbit }}</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span class="buku-tahun">{{ $buku->tahun_terbit }}</span>
-                                        </td>
-                                        <td>
-                                            <span class="buku-halaman">{{ $buku->jumlah_halaman }} hlm</span>
-                                        </td>
-                                        <td>
-                                            <div class="buku-actions">
-                                                <button class="btn btn-edit" onclick="editBuku({{ $buku->id }})"
-                                                    title="Edit Buku">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="btn btn-delete" onclick="deleteBuku({{ $buku->id }})"
-                                                    title="Hapus Buku">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @else
-                    <div class="empty-state">
-                        <i class="fas fa-book-open"></i>
-                        <h4>Belum ada buku</h4>
-                        <p>Mulai dengan menambahkan buku baru ke koleksi</p>
-                        <button type="button" class="btn btn-add-buku mt-3" data-bs-toggle="modal"
-                            data-bs-target="#bukuModal" onclick="resetForm()">
-                            <i class="fas fa-plus"></i>
-                            Tambah Buku Pertama
-                        </button>
-                    </div>
-                @endif
+                <div id="bukuTableContainer">
+                    @include('admin.manajemen-buku.partials.buku_table')
+                </div>
             </div>
         </div>
     </div>
@@ -207,6 +167,7 @@
 @push('scripts')
     <script>
         let isEditMode = false;
+        let searchTimeout = null;
 
         function resetForm() {
             isEditMode = false;
@@ -228,6 +189,114 @@
             inputElements.forEach(element => {
                 element.classList.remove('is-invalid');
             });
+        }
+
+        // Pagination functions
+        function loadPage(page) {
+            const search = document.getElementById('searchInput').value;
+            const perPage = document.getElementById('perPageSelect').value;
+            
+            updateTable({page: page, search: search, per_page: perPage});
+        }
+
+        function handleSearch(event) {
+            if (event.key === 'Enter') {
+                performSearch();
+                return;
+            }
+            
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(performSearch, 500);
+            
+            // Toggle clear button visibility
+            const clearBtn = document.querySelector('.btn-clear-search');
+            if (event.target.value) {
+                clearBtn.style.display = 'block';
+            } else {
+                clearBtn.style.display = 'none';
+            }
+        }
+
+        function performSearch() {
+            const search = document.getElementById('searchInput').value;
+            const perPage = document.getElementById('perPageSelect').value;
+            
+            updateTable({search: search, per_page: perPage, page: 1});
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            document.querySelector('.btn-clear-search').style.display = 'none';
+            performSearch();
+        }
+
+        function changePerPage(value) {
+            const search = document.getElementById('searchInput').value;
+            updateTable({per_page: value, search: search, page: 1});
+        }
+
+        function updateTable(params = {}) {
+            const container = document.getElementById('bukuTableContainer');
+            const loader = document.createElement('div');
+            loader.className = 'table-loader';
+            loader.innerHTML = '<div class="loading-spinner"></div><p>Memuat data...</p>';
+            
+            container.innerHTML = '';
+            container.appendChild(loader);
+
+            const url = new URL('{{ url('admin/manajemen-buku') }}');
+            url.searchParams.append('ajax', '1');
+            
+            Object.keys(params).forEach(key => {
+                if (params[key]) {
+                    url.searchParams.append(key, params[key]);
+                }
+            });
+
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    container.innerHTML = data.html;
+                    
+                    // Update stats if available
+                    if (data.stats) {
+                        updateStats(data.stats);
+                    }
+                } else {
+                    container.innerHTML = '<div class="alert alert-danger">Gagal memuat data</div>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                container.innerHTML = '<div class="alert alert-danger">Terjadi kesalahan saat memuat data</div>';
+            });
+        }
+
+        function updateStats(stats) {
+            // Update stat cards if needed
+            const statCards = document.querySelectorAll('.stat-value');
+            if (statCards.length >= 3) {
+                statCards[0].textContent = formatNumber(stats.total);
+                statCards[1].textContent = formatNumber(stats.bulan_ini);
+                
+                let trendHtml = '0%';
+                if (stats.trend == 'up') {
+                    trendHtml = `+${stats.persentase}%`;
+                } else if (stats.trend == 'down') {
+                    trendHtml = `-${stats.persentase}%`;
+                }
+                statCards[2].innerHTML = trendHtml;
+            }
+        }
+
+        function formatNumber(num) {
+            return new Intl.NumberFormat('id-ID').format(num);
         }
 
         function editBuku(id) {
@@ -323,7 +392,8 @@
                         .then(data => {
                             if (data.success) {
                                 Swal.fire('Berhasil!', data.message, 'success').then(() => {
-                                    location.reload();
+                                    // Reload table instead of full page
+                                    updateTable();
                                 });
                             } else {
                                 Swal.fire('Error!', data.message, 'error');
@@ -400,7 +470,10 @@
                             icon: 'success',
                             confirmButtonColor: '#01747B'
                         }).then(() => {
-                            location.reload();
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('bukuModal'));
+                            modal.hide();
+                            // Reload table instead of full page
+                            updateTable();
                         });
                     } else {
                         if (data.errors) {
@@ -449,13 +522,5 @@
         document.getElementById('bukuModal').addEventListener('hidden.bs.modal', function() {
             resetForm();
         });
-
-        function debugForm() {
-            console.log('Form Data:');
-            const formData = new FormData(document.getElementById('bukuForm'));
-            for (let [key, value] of formData.entries()) {
-                console.log(key + ': ' + value);
-            }
-        }
     </script>
 @endpush

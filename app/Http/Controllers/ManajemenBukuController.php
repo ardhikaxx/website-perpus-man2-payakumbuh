@@ -7,10 +7,33 @@ use Illuminate\Http\Request;
 
 class ManajemenBukuController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $bukus = Buku::orderBy('created_at', 'desc')->get();
-        return view('admin.manajemen-buku.index', compact('bukus'));
+        $perPage = $request->get('per_page', 10);
+        $search = $request->get('search', '');
+
+        $query = Buku::orderBy('created_at', 'desc');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('judul_buku', 'like', "%{$search}%")
+                    ->orWhere('pengarang', 'like', "%{$search}%")
+                    ->orWhere('penerbit', 'like', "%{$search}%");
+            });
+        }
+
+        $bukus = $query->paginate($perPage);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'html' => view('admin.manajemen-buku.partials.buku_table', compact('bukus', 'search'))->render(),
+                'pagination' => (string) $bukus->links('vendor.pagination.custom'),
+                'stats' => Buku::getStats()
+            ]);
+        }
+
+        return view('admin.manajemen-buku.index', compact('bukus', 'search'));
     }
 
     public function store(Request $request)
@@ -44,7 +67,7 @@ class ManajemenBukuController extends Controller
     {
         try {
             $buku = Buku::find($id);
-            
+
             if (!$buku) {
                 return response()->json([
                     'success' => false,
@@ -76,7 +99,7 @@ class ManajemenBukuController extends Controller
     public function update(Request $request, $id)
     {
         $buku = Buku::find($id);
-        
+
         if (!$buku) {
             return response()->json([
                 'success' => false,
@@ -121,7 +144,7 @@ class ManajemenBukuController extends Controller
     {
         try {
             $buku = Buku::find($id);
-            
+
             if (!$buku) {
                 return response()->json([
                     'success' => false,

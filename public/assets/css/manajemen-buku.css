@@ -26,13 +26,12 @@
 .btn-add-buku {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     border: none;
-    border-radius: 8px;
-    padding: 12px 25px;
+    border-radius: 20px;
+    padding: 12px;
+    height: 62px;
     color: white;
+    font-size: 16px;
     font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(1, 116, 123, 0.3);
 }
@@ -297,6 +296,10 @@
 
 /* Empty State */
 .empty-state {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     text-align: center;
     padding: 50px 20px;
     color: #6c757d;
@@ -406,5 +409,205 @@
     
     .buku-info {
         max-width: 200px;
+    }
+}
+
+/* Search and Toolbar Styles */
+.buku-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #e9ecef;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    position: relative;
+    flex: 1;
+    min-width: 300px;
+    max-width: 400px;
+}
+
+.search-box i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    z-index: 2;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 10px 15px 10px 45px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.search-box input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.2rem rgba(0, 210, 223, 0.25);
+}
+
+.btn-clear-search {
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.btn-clear-search:hover {
+    background: #f8f9fa;
+    color: #dc3545;
+}
+
+.toolbar-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.per-page-select {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 8px 12px;
+    background: white;
+    min-width: 150px;
+}
+
+.per-page-select:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.2rem rgba(0, 210, 223, 0.25);
+}
+
+/* Pagination Styles */
+.pagination-container {
+    padding: 20px;
+    border-top: 1px solid #e9ecef;
+}
+
+.pagination-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.pagination-info {
+    color: #6c757d;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.pagination {
+    display: flex;
+    gap: 5px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.page-item .page-link {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    background: white;
+    min-width: 40px;
+    text-align: center;
+}
+
+.page-item .page-link:hover {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.page-item.active .page-link {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.page-item.disabled .page-link {
+    color: #6c757d;
+    background: #f8f9fa;
+    border-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+/* Loading State */
+.table-loader {
+    text-align: center;
+    padding: 50px 20px;
+    color: #6c757d;
+}
+
+.table-loader .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px;
+}
+
+/* Responsive Styles for Pagination */
+@media (max-width: 768px) {
+    .buku-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-box {
+        min-width: 100%;
+        max-width: 100%;
+    }
+    
+    .toolbar-actions {
+        justify-content: flex-end;
+    }
+    
+    .pagination-nav {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .pagination-info {
+        order: 2;
+    }
+    
+    .pagination {
+        order: 1;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .page-item .page-link {
+        padding: 6px 10px;
+        min-width: 35px;
+        font-size: 14px;
     }
 }
