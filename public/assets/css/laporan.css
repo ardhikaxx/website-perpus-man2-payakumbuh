@@ -325,8 +325,8 @@
 }
 
 .badge-primary {
-    background-color: var(--light-color);
-    color: var(--dark-color);
+    background-color: var(--primary-color);
+    color: #ffff;
 }
 
 .badge-success {
@@ -335,11 +335,10 @@
 }
 
 .badge-info {
-    background-color: #d1ecf1;
-    color: #0c5460;
+    background-color: var(--secondary-color);
+    color: #ffff;
 }
 
-/* Gender Stats */
 .gender-stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
