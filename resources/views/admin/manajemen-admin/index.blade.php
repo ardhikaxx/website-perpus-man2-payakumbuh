@@ -28,71 +28,31 @@
                     Daftar Administrator
                 </h3>
             </div>
+            
+            <!-- Search and Filter Section -->
+            <div class="admin-toolbar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Cari nama atau email..." 
+                           value="{{ $search }}" onkeyup="handleSearch(event)">
+                    <button class="btn-clear-search" onclick="clearSearch()" style="{{ $search ? '' : 'display: none;' }}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="toolbar-actions">
+                    <select id="perPageSelect" class="form-select per-page-select" onchange="changePerPage(this.value)">
+                        <option value="5" {{ request('per_page', 10) == 5 ? 'selected' : '' }}>5 per halaman</option>
+                        <option value="10" {{ request('per_page', 10) == 10 ? 'selected' : '' }}>10 per halaman</option>
+                        <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25 per halaman</option>
+                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50 per halaman</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="card-body p-0">
-                @if ($admins->count() > 0)
-                    <div class="table-responsive">
-                        <table class="admin-table table table-borderless">
-                            <thead>
-                                <tr>
-                                    <th width="60">Foto</th>
-                                    <th>Informasi Admin</th>
-                                    <th>Email</th>
-                                    <th>Tanggal Dibuat</th>
-                                    <th width="120" class="text-end">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($admins as $admin)
-                                    <tr>
-                                        <td>
-                                            @if ($admin->foto)
-                                                <img src="{{ asset($admin->foto) }}" alt="{{ $admin->nama_lengkap }}"
-                                                    class="admin-avatar"
-                                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                                <div class="admin-avatar-placeholder" style="display: none;">
-                                                    {{ substr($admin->nama_lengkap, 0, 1) }}
-                                                </div>
-                                            @else
-                                                <div class="admin-avatar-placeholder">
-                                                    {{ substr($admin->nama_lengkap, 0, 1) }}
-                                                </div>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <div class="admin-name">{{ $admin->nama_lengkap }}</div>
-                                            <div class="admin-email">{{ $admin->email }}</div>
-                                        </td>
-                                        <td>{{ $admin->email }}</td>
-                                        <td>{{ $admin->created_at->format('d M Y') }}</td>
-                                        <td>
-                                            <div class="admin-actions">
-                                                <button class="btn btn-edit" onclick="editAdmin({{ $admin->id }})"
-                                                    title="Edit Admin">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="btn btn-delete" onclick="deleteAdmin({{ $admin->id }})"
-                                                    title="Hapus Admin">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @else
-                    <div class="empty-state">
-                        <i class="fas fa-users-slash"></i>
-                        <h4>Belum ada admin</h4>
-                        <p>Mulai dengan menambahkan administrator baru</p>
-                        <button type="button" class="btn btn-add-admin mt-3" data-bs-toggle="modal"
-                            data-bs-target="#adminModal" onclick="resetForm()">
-                            <i class="fas fa-plus"></i>
-                            Tambah Admin Pertama
-                        </button>
-                    </div>
-                @endif
+                <div id="adminTableContainer">
+                    @include('admin.manajemen-admin.partials.admin_table')
+                </div>
             </div>
         </div>
     </div>
@@ -193,6 +153,7 @@
 @push('scripts')
     <script>
         let isEditMode = false;
+        let searchTimeout = null;
 
         function resetForm() {
             isEditMode = false;
@@ -252,6 +213,88 @@
                 icon.classList.remove('fa-eye-slash');
                 icon.classList.add('fa-eye');
             }
+        }
+
+        // Pagination functions
+        function loadPage(page) {
+            const search = document.getElementById('searchInput').value;
+            const perPage = document.getElementById('perPageSelect').value;
+            
+            updateTable({page: page, search: search, per_page: perPage});
+        }
+
+        function handleSearch(event) {
+            if (event.key === 'Enter') {
+                performSearch();
+                return;
+            }
+            
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(performSearch, 500);
+            
+            // Toggle clear button visibility
+            const clearBtn = document.querySelector('.btn-clear-search');
+            if (event.target.value) {
+                clearBtn.style.display = 'block';
+            } else {
+                clearBtn.style.display = 'none';
+            }
+        }
+
+        function performSearch() {
+            const search = document.getElementById('searchInput').value;
+            const perPage = document.getElementById('perPageSelect').value;
+            
+            updateTable({search: search, per_page: perPage, page: 1});
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            document.querySelector('.btn-clear-search').style.display = 'none';
+            performSearch();
+        }
+
+        function changePerPage(value) {
+            const search = document.getElementById('searchInput').value;
+            updateTable({per_page: value, search: search, page: 1});
+        }
+
+        function updateTable(params = {}) {
+            const container = document.getElementById('adminTableContainer');
+            const loader = document.createElement('div');
+            loader.className = 'table-loader';
+            loader.innerHTML = '<div class="loading-spinner"></div><p>Memuat data...</p>';
+            
+            container.innerHTML = '';
+            container.appendChild(loader);
+
+            const url = new URL('{{ url('admin/manajemen-admin') }}');
+            url.searchParams.append('ajax', '1');
+            
+            Object.keys(params).forEach(key => {
+                if (params[key]) {
+                    url.searchParams.append(key, params[key]);
+                }
+            });
+
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    container.innerHTML = data.html;
+                } else {
+                    container.innerHTML = '<div class="alert alert-danger">Gagal memuat data</div>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                container.innerHTML = '<div class="alert alert-danger">Terjadi kesalahan saat memuat data</div>';
+            });
         }
 
         function editAdmin(id) {
@@ -363,7 +406,8 @@
                         .then(data => {
                             if (data.success) {
                                 Swal.fire('Berhasil!', data.message, 'success').then(() => {
-                                    location.reload();
+                                    // Reload table instead of full page
+                                    updateTable();
                                 });
                             } else {
                                 Swal.fire('Error!', data.message, 'error');
@@ -426,7 +470,10 @@
                 .then(data => {
                     if (data.success) {
                         Swal.fire('Berhasil!', data.message, 'success').then(() => {
-                            location.reload();
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('adminModal'));
+                            modal.hide();
+                            // Reload table instead of full page
+                            updateTable();
                         });
                     } else {
                         if (data.errors) {

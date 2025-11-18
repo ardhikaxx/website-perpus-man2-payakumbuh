@@ -10,10 +10,32 @@ use Illuminate\Support\Facades\File;
 
 class ManajemenAdminController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $admins = Admin::all();
-        return view('admin.manajemen-admin.index', compact('admins'));
+        $perPage = $request->get('per_page', 10);
+        $search = $request->get('search', '');
+
+        $query = Admin::orderBy('created_at', 'desc');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_lengkap', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $admins = $query->paginate($perPage);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'html' => view('admin.manajemen-admin.partials.admin_table', compact('admins', 'search'))->render(),
+                'pagination' => (string) $admins->links('vendor.pagination'),
+                'total' => $admins->total()
+            ]);
+        }
+
+        return view('admin.manajemen-admin.index', compact('admins', 'search'));
     }
 
     public function store(Request $request)
@@ -34,15 +56,15 @@ class ManajemenAdminController extends Controller
             if ($request->hasFile('foto')) {
                 $foto = $request->file('foto');
                 $fotoName = time() . '_' . uniqid() . '.' . $foto->getClientOriginalExtension();
-                
+
                 $fotoPath = public_path('assets/admin');
-                
+
                 if (!File::exists($fotoPath)) {
                     File::makeDirectory($fotoPath, 0755, true);
                 }
-                
+
                 $foto->move($fotoPath, $fotoName);
-                
+
                 $admin->foto = 'assets/admin/' . $fotoName;
             }
 
@@ -65,7 +87,7 @@ class ManajemenAdminController extends Controller
     {
         try {
             $admin = Admin::find($id);
-            
+
             if (!$admin) {
                 return response()->json([
                     'success' => false,
@@ -94,7 +116,7 @@ class ManajemenAdminController extends Controller
     public function update(Request $request, $id)
     {
         $admin = Admin::find($id);
-        
+
         if (!$admin) {
             return response()->json([
                 'success' => false,
@@ -121,18 +143,18 @@ class ManajemenAdminController extends Controller
                 if ($admin->foto && File::exists(public_path($admin->foto))) {
                     File::delete(public_path($admin->foto));
                 }
-                
+
                 $foto = $request->file('foto');
                 $fotoName = time() . '_' . uniqid() . '.' . $foto->getClientOriginalExtension();
-                
+
                 $fotoPath = public_path('assets/admin');
-                
+
                 if (!File::exists($fotoPath)) {
                     File::makeDirectory($fotoPath, 0755, true);
                 }
-                
+
                 $foto->move($fotoPath, $fotoName);
-                
+
                 $admin->foto = 'assets/admin/' . $fotoName;
             }
 
@@ -155,14 +177,14 @@ class ManajemenAdminController extends Controller
     {
         try {
             $admin = Admin::find($id);
-            
+
             if (!$admin) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Admin tidak ditemukan'
                 ], 404);
             }
-            
+
             if ($admin->id === auth()->guard('admin')->id()) {
                 return response()->json([
                     'success' => false,

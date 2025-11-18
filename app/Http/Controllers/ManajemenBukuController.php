@@ -28,7 +28,7 @@ class ManajemenBukuController extends Controller
             return response()->json([
                 'success' => true,
                 'html' => view('admin.manajemen-buku.partials.buku_table', compact('bukus', 'search'))->render(),
-                'pagination' => (string) $bukus->links('vendor.pagination.custom'),
+                'pagination' => (string) $bukus->links('vendor.pagination'),
                 'stats' => Buku::getStats()
             ]);
         }
