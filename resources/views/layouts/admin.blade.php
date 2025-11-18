@@ -85,7 +85,7 @@
 
         .sidebar-logo img {
             width: auto;
-            max-height: 54px;
+            max-height: 48px;
             transition: all var(--transition-speed);
         }
 
