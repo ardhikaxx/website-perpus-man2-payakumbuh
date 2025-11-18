@@ -189,7 +189,7 @@
             <div class="card-body p-0">
                 @if ($pengunjungs->count() > 0)
                     <div class="table-responsive">
-                        <table class="laporan-table table table-hover">
+                        <table class="laporan-table table table-borderless">
                             <thead>
                                 <tr>
                                     <th width="50">#</th>
