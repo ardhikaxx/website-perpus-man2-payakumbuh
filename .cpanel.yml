@@ -1,0 +1,6 @@
+---
+deployment:
+  tasks:
+    - /bin/cp -R /home/pzjehtnb/repositories/website-perpus-man2-payakumbuh/* /home/pzjehtnb/public_html/
+    - /bin/chmod -R 755 /home/pzjehtnb/public_html/
+    - /bin/chown -R pzjehtnb:pzjehtnb /home/pzjehtnb/public_html/
