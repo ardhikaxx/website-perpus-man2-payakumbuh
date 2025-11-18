@@ -31,7 +31,7 @@
             <div class="card-body p-0">
                 @if ($admins->count() > 0)
                     <div class="table-responsive">
-                        <table class="admin-table table table-hover">
+                        <table class="admin-table table table-borderless">
                             <thead>
                                 <tr>
                                     <th width="60">Foto</th>

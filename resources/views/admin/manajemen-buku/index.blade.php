@@ -60,7 +60,7 @@
             <div class="card-body p-0">
                 @if ($bukus->count() > 0)
                     <div class="table-responsive">
-                        <table class="buku-table table table-hover">
+                        <table class="buku-table table table-borderless">
                             <thead>
                                 <tr>
                                     <th width="70"></th>
