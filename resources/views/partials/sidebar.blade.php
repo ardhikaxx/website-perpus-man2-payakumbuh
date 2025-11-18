@@ -39,15 +39,15 @@
                 </a>
             </li> --}}
             <li>
-                <a href="{{ route('admin.laporan') }}" class="{{ request()->routeIs('admin.laporan') ? 'active' : '' }}">
-                    <i class="fas fa-chart-bar"></i>
-                    <span class="menu-text">Laporan</span>
-                </a>
-            </li>
-            <li>
                 <a href="{{ route('admin.manajemen-admin') }}" class="{{ request()->routeIs('admin.manajemen-admin') ? 'active' : '' }}">
                     <i class="fas fa-user-shield"></i>
                     <span class="menu-text">Manajemen Admin</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('admin.laporan') }}" class="{{ request()->routeIs('admin.laporan') ? 'active' : '' }}">
+                    <i class="fas fa-chart-bar"></i>
+                    <span class="menu-text">Laporan</span>
                 </a>
             </li>
             <li>

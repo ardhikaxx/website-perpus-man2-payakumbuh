@@ -6,6 +6,7 @@ use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\PengunjungController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ManajemenAdminController;
+use App\Http\Controllers\ManajemenBukuController;
 
 Route::get('/', function () {
     return view('index');
@@ -26,6 +27,12 @@ Route::middleware([AdminMiddleware::class])->group(function () {
     })->name('admin.manajemen-buku');
 
     Route::prefix('admin')->name('admin.')->group(function () {
+Route::get('/manajemen-buku', [ManajemenBukuController::class, 'index'])->name('manajemen-buku');
+    Route::post('/manajemen-buku', [ManajemenBukuController::class, 'store'])->name('manajemen-buku.store');
+    Route::get('/manajemen-buku/{id}', [ManajemenBukuController::class, 'show'])->name('manajemen-buku.show');
+    Route::put('/manajemen-buku/{id}', [ManajemenBukuController::class, 'update'])->name('manajemen-buku.update');
+    Route::delete('/manajemen-buku/{id}', [ManajemenBukuController::class, 'destroy'])->name('manajemen-buku.destroy');
+
         Route::get('/manajemen-admin', [ManajemenAdminController::class, 'index'])->name('manajemen-admin');
         Route::post('/manajemen-admin', [ManajemenAdminController::class, 'store'])->name('manajemen-admin.store');
         Route::get('/manajemen-admin/{id}', [ManajemenAdminController::class, 'show'])->name('manajemen-admin.show');
