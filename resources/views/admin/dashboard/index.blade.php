@@ -10,7 +10,6 @@
     </div>
 
     <div class="stats-container">
-        <!-- Stat Card untuk Total Buku -->
         <div class="stat-card">
             <div class="stat-card-header">
                 <div>
@@ -40,7 +39,6 @@
             </div>
         </div>
 
-        <!-- Stat Card untuk Total Admin -->
         <div class="stat-card">
             <div class="stat-card-header">
                 <div>

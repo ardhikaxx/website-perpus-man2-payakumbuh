@@ -107,7 +107,6 @@ class ManajemenBukuController extends Controller
             ], 404, ['Content-Type' => 'application/json; charset=utf-8']);
         }
 
-        // Validasi yang sama dengan store
         $request->validate([
             'judul_buku' => 'required|string|max:255',
             'pengarang' => 'required|string|max:255',
@@ -117,7 +116,6 @@ class ManajemenBukuController extends Controller
         ]);
 
         try {
-            // Update data
             $buku->update([
                 'judul_buku' => $request->judul_buku,
                 'pengarang' => $request->pengarang,

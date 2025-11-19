@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
+    <link rel="shortcut icon" href="{{ asset('assets/logo-side.png') }}" type="image/x-icon">
     <style>
         :root {
             --primary-color: #01747B;
@@ -816,11 +817,11 @@
                             <span>${visitor.keperluan}</span>
                         </div>
                         ${visitor.yang_dicari ? `
-                            <div class="visitor-detail">
-                                <i class="fas fa-search"></i>
-                                <span>${visitor.yang_dicari}</span>
-                            </div>
-                            ` : ''}
+                                <div class="visitor-detail">
+                                    <i class="fas fa-search"></i>
+                                    <span>${visitor.yang_dicari}</span>
+                                </div>
+                                ` : ''}
                     </div>
                 </div>
             `;
@@ -885,7 +886,8 @@
                     // Tampilkan alert sukses
                     setTimeout(() => {
                         alert(
-                            `Terima kasih ${document.getElementById('nama').value}! Data Anda telah berhasil disimpan.`);
+                            `Terima kasih ${document.getElementById('nama').value}! Data Anda telah berhasil disimpan.`
+                            );
                     }, 300);
 
                     // Reset form
