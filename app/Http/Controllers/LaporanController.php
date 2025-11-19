@@ -248,21 +248,29 @@ class LaporanController extends Controller
 
         if ($periode === 'hari_ini') {
             $query->whereDate('tanggal_kunjungan', today());
+            $startDate = today()->toDateString();
+            $endDate = today()->toDateString();
         } elseif ($periode === 'minggu_ini') {
             $query->whereBetween('tanggal_kunjungan', [
                 now()->startOfWeek(),
                 now()->endOfWeek()
             ]);
+            $startDate = now()->startOfWeek()->toDateString();
+            $endDate = now()->endOfWeek()->toDateString();
         } elseif ($periode === 'bulan_ini') {
             $query->whereBetween('tanggal_kunjungan', [
                 now()->startOfMonth(),
                 now()->endOfMonth()
             ]);
+            $startDate = now()->startOfMonth()->toDateString();
+            $endDate = now()->endOfMonth()->toDateString();
         } elseif ($periode === 'tahun_ini') {
             $query->whereBetween('tanggal_kunjungan', [
                 now()->startOfYear(),
                 now()->endOfYear()
             ]);
+            $startDate = now()->startOfYear()->toDateString();
+            $endDate = now()->endOfYear()->toDateString();
         } elseif ($periode === 'custom' && $startDate && $endDate) {
             $query->whereBetween('tanggal_kunjungan', [$startDate, $endDate]);
         }
@@ -271,13 +279,110 @@ class LaporanController extends Controller
             ->orderBy('jam_kunjungan', 'desc')
             ->get();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Fitur export akan diimplementasikan kemudian',
-            'data' => [
-                'total' => $pengunjungs->count(),
-                'periode' => $periode
-            ]
-        ]);
+        $totalPengunjung = $pengunjungs->count();
+        $pengunjungHariIni = Pengunjung::whereDate('tanggal_kunjungan', today())->count();
+        $pengunjungBulanIni = Pengunjung::whereMonth('tanggal_kunjungan', now()->month)
+            ->whereYear('tanggal_kunjungan', now()->year)
+            ->count();
+        $totalSemuaPengunjung = Pengunjung::count();
+
+        $statistikJenisKelamin = Pengunjung::select('jenis_kelamin', DB::raw('count(*) as total'))
+            ->groupBy('jenis_kelamin')
+            ->get()
+            ->pluck('total', 'jenis_kelamin');
+
+        $statistikKeperluan = Pengunjung::select('keperluan', DB::raw('count(*) as total'))
+            ->groupBy('keperluan')
+            ->orderBy('total', 'desc')
+            ->get();
+
+        return view('admin.laporan.export-pdf', compact(
+            'pengunjungs',
+            'periode',
+            'startDate',
+            'endDate',
+            'totalPengunjung',
+            'pengunjungHariIni',
+            'pengunjungBulanIni',
+            'totalSemuaPengunjung',
+            'statistikJenisKelamin',
+            'statistikKeperluan'
+        ));
+    }
+
+    public function exportPDF(Request $request)
+    {
+        $periode = $request->get('periode', 'hari_ini');
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+
+        $query = Pengunjung::query();
+
+        if ($periode === 'hari_ini') {
+            $query->whereDate('tanggal_kunjungan', today());
+            $startDate = today()->toDateString();
+            $endDate = today()->toDateString();
+        } elseif ($periode === 'minggu_ini') {
+            $query->whereBetween('tanggal_kunjungan', [
+                now()->startOfWeek(),
+                now()->endOfWeek()
+            ]);
+            $startDate = now()->startOfWeek()->toDateString();
+            $endDate = now()->endOfWeek()->toDateString();
+        } elseif ($periode === 'bulan_ini') {
+            $query->whereBetween('tanggal_kunjungan', [
+                now()->startOfMonth(),
+                now()->endOfMonth()
+            ]);
+            $startDate = now()->startOfMonth()->toDateString();
+            $endDate = now()->endOfMonth()->toDateString();
+        } elseif ($periode === 'tahun_ini') {
+            $query->whereBetween('tanggal_kunjungan', [
+                now()->startOfYear(),
+                now()->endOfYear()
+            ]);
+            $startDate = now()->startOfYear()->toDateString();
+            $endDate = now()->endOfYear()->toDateString();
+        } elseif ($periode === 'custom' && $startDate && $endDate) {
+            $query->whereBetween('tanggal_kunjungan', [$startDate, $endDate]);
+        }
+
+        $pengunjungs = $query->orderBy('tanggal_kunjungan', 'desc')
+            ->orderBy('jam_kunjungan', 'desc')
+            ->get();
+
+        $totalPengunjung = $pengunjungs->count();
+        $pengunjungHariIni = Pengunjung::whereDate('tanggal_kunjungan', today())->count();
+        $pengunjungBulanIni = Pengunjung::whereMonth('tanggal_kunjungan', now()->month)
+            ->whereYear('tanggal_kunjungan', now()->year)
+            ->count();
+        $totalSemuaPengunjung = Pengunjung::count();
+
+        $statistikJenisKelamin = Pengunjung::select('jenis_kelamin', DB::raw('count(*) as total'))
+            ->groupBy('jenis_kelamin')
+            ->get()
+            ->pluck('total', 'jenis_kelamin');
+
+        $statistikKeperluan = Pengunjung::select('keperluan', DB::raw('count(*) as total'))
+            ->groupBy('keperluan')
+            ->orderBy('total', 'desc')
+            ->get();
+
+        $data = [
+            'pengunjungs' => $pengunjungs,
+            'periode' => $periode,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'totalPengunjung' => $totalPengunjung,
+            'pengunjungHariIni' => $pengunjungHariIni,
+            'pengunjungBulanIni' => $pengunjungBulanIni,
+            'totalSemuaPengunjung' => $totalSemuaPengunjung,
+            'statistikJenisKelamin' => $statistikJenisKelamin,
+            'statistikKeperluan' => $statistikKeperluan,
+            'tanggalExport' => now()->format('d F Y H:i:s'),
+            'autoPrint' => true
+        ];
+
+        return view('admin.laporan.export-pdf', $data);
     }
 }

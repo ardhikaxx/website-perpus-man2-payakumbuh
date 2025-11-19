@@ -49,7 +49,7 @@
 
                 <div class="form-group">
                     <button type="button" class="btn btn-export" id="exportBtn">
-                        <i class="fas fa-download"></i>
+                        <i class="fas fa-file-export"></i>
                         Export
                     </button>
                 </div>
@@ -259,7 +259,6 @@
                 }
             });
 
-            // Chart bar interactions
             const chartBars = document.querySelectorAll('.chart-bar');
             chartBars.forEach(bar => {
                 bar.addEventListener('mouseenter', function() {
@@ -273,64 +272,31 @@
                 });
             });
 
-            // Export functionality
             document.getElementById('exportBtn').addEventListener('click', function() {
                 const form = document.getElementById('filterForm');
                 const formData = new FormData(form);
                 const params = new URLSearchParams(formData);
 
                 Swal.fire({
-                    title: 'Export Data?',
-                    text: 'Data akan diexport dalam format Excel',
+                    title: 'Export Laporan?',
+                    text: 'Data akan diexport dalam PDF',
                     icon: 'question',
                     showCancelButton: true,
-                    confirmButtonColor: '#28a745',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Ya, Export!',
-                    cancelButtonText: 'Batal'
+                    confirmButtonText: 'Print',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                    customClass: {
+                        confirmButton: 'btn btn-primary',
+                        cancelButton: 'btn btn-secondary me-2'
+                    },
+                    buttonsStyling: false
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // Show loading
-                        Swal.fire({
-                            title: 'Memproses...',
-                            text: 'Sedang menyiapkan data untuk export',
-                            allowOutsideClick: false,
-                            didOpen: () => {
-                                Swal.showLoading();
-                            }
-                        });
-
-                        // Simulate export process
-                        fetch(`{{ route('admin.laporan.export') }}?${params}`, {
-                                method: 'GET',
-                                headers: {
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                    'Accept': 'application/json'
-                                }
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                Swal.fire({
-                                    title: 'Berhasil!',
-                                    text: data.message,
-                                    icon: 'success',
-                                    confirmButtonColor: '#28a745'
-                                });
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                Swal.fire({
-                                    title: 'Error!',
-                                    text: 'Terjadi kesalahan saat export data',
-                                    icon: 'error',
-                                    confirmButtonColor: '#dc3545'
-                                });
-                            });
+                        window.open(`{{ route('admin.laporan.export.pdf') }}?${params}`, '_blank');
                     }
                 });
             });
 
-            // Animate chart bars on load
             setTimeout(() => {
                 chartBars.forEach((bar, index) => {
                     setTimeout(() => {

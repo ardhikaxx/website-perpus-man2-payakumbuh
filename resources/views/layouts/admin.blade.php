@@ -492,6 +492,18 @@
             }
         }
 
+        .btn-primary {
+            background: var(--primary-color);
+            color: #ffff;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--dark-color);
+            color: #ffff;
+            border: none;
+        }
+
         .swal2-popup {
             border-radius: 25px !important;
         }

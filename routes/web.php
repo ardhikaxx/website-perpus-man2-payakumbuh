@@ -39,7 +39,8 @@ Route::middleware([AdminMiddleware::class])->group(function () {
         Route::delete('/manajemen-admin/{id}', [ManajemenAdminController::class, 'destroy'])->name('manajemen-admin.destroy');
 
         Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan');
-        Route::get('/laporan/export', [LaporanController::class, 'export'])->name('laporan.export');
+        Route::get('/admin/laporan/export', [LaporanController::class, 'export'])->name('laporan.export');
+        Route::get('/admin/laporan/export-pdf', [LaporanController::class, 'exportPDF'])->name('laporan.export.pdf');
 
         Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('pengaturan');
         Route::post('/pengaturan/update-profile', [PengaturanController::class, 'updateProfile'])->name('pengaturan.update-profile');
