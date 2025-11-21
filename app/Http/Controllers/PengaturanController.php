@@ -16,7 +16,7 @@ class PengaturanController extends Controller
     public function index()
     {
         $admin = Auth::guard('admin')->user();
-        
+
         if (!$admin) {
             return redirect()->route('admin.login')->with('error', 'Silakan login terlebih dahulu.');
         }
@@ -63,13 +63,13 @@ class PengaturanController extends Controller
             'nama_lengkap.min' => 'Nama lengkap minimal 2 karakter',
             'nama_lengkap.max' => 'Nama lengkap maksimal 255 karakter',
             'nama_lengkap.regex' => 'Nama lengkap hanya boleh mengandung huruf, spasi, titik, dan koma',
-            
+
             'email.required' => 'Email wajib diisi',
             'email.email' => 'Format email tidak valid',
             'email.max' => 'Email maksimal 255 karakter',
             'email.unique' => 'Email sudah digunakan oleh admin lain',
             'email.regex' => 'Format email tidak valid',
-            
+
             'foto.image' => 'File harus berupa gambar',
             'foto.mimes' => 'Format gambar harus jpeg, png, jpg, gif, atau webp',
             'foto.max' => 'Ukuran gambar maksimal 2MB',
@@ -84,24 +84,24 @@ class PengaturanController extends Controller
                 '/onclick|onload|onerror|onmouseover/i',
                 '/<iframe|<embed|<object/i'
             ];
-            
+
             foreach ($dangerousPatterns as $pattern) {
                 if (preg_match($pattern, $request->nama_lengkap)) {
                     $validator->errors()->add('nama_lengkap', 'Nama lengkap mengandung karakter yang tidak diizinkan');
                     break;
                 }
-                
+
                 if (preg_match($pattern, $request->email)) {
                     $validator->errors()->add('email', 'Email mengandung karakter yang tidak diizinkan');
                     break;
                 }
             }
-            
+
             // Validasi panjang nama yang masuk akal
             if (strlen($request->nama_lengkap) < 2) {
                 $validator->errors()->add('nama_lengkap', 'Nama lengkap terlalu pendek');
             }
-            
+
             if (strlen($request->nama_lengkap) > 255) {
                 $validator->errors()->add('nama_lengkap', 'Nama lengkap terlalu panjang');
             }
@@ -129,16 +129,16 @@ class PengaturanController extends Controller
 
             if ($request->hasFile('foto')) {
                 $foto = $request->file('foto');
-                
+
                 // Validasi tambahan untuk foto
                 if (!$foto->isValid()) {
                     throw new \Exception('File foto tidak valid');
                 }
-                
+
                 // Cek ekstensi file
                 $allowedExtensions = ['jpeg', 'png', 'jpg', 'gif', 'webp'];
                 $extension = strtolower($foto->getClientOriginalExtension());
-                
+
                 if (!in_array($extension, $allowedExtensions)) {
                     return response()->json([
                         'success' => false,
@@ -146,11 +146,11 @@ class PengaturanController extends Controller
                         'errors' => ['foto' => ['Format file harus jpeg, png, jpg, gif, atau webp']]
                     ], 422);
                 }
-                
+
                 // Cek MIME type
                 $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'];
                 $mimeType = $foto->getMimeType();
-                
+
                 if (!in_array($mimeType, $allowedMimeTypes)) {
                     return response()->json([
                         'success' => false,
@@ -160,20 +160,20 @@ class PengaturanController extends Controller
                 }
 
                 $fotoName = time() . '_' . uniqid() . '.' . $extension;
-                
+
                 $fotoPath = public_path('assets/admin');
-                
+
                 if (!File::exists($fotoPath)) {
                     File::makeDirectory($fotoPath, 0755, true);
                 }
-                
+
                 // Hapus foto lama jika ada
                 if ($admin->foto && File::exists(public_path($admin->foto))) {
                     File::delete(public_path($admin->foto));
                 }
-                
+
                 $foto->move($fotoPath, $fotoName);
-                
+
                 $updateData['foto'] = 'assets/admin/' . $fotoName;
             }
 
@@ -243,14 +243,14 @@ class PengaturanController extends Controller
             'current_password.required' => 'Password saat ini wajib diisi',
             'current_password.string' => 'Password harus berupa teks',
             'current_password.min' => 'Password saat ini tidak valid',
-            
+
             'new_password.required' => 'Password baru wajib diisi',
             'new_password.string' => 'Password baru harus berupa teks',
             'new_password.min' => 'Password baru minimal 8 karakter',
             'new_password.max' => 'Password baru maksimal 255 karakter',
             'new_password.confirmed' => 'Konfirmasi password baru tidak sesuai',
             'new_password.regex' => 'Password baru harus mengandung minimal 1 huruf kecil, 1 huruf besar, 1 angka, dan 1 karakter spesial',
-            
+
             'new_password_confirmation.required' => 'Konfirmasi password baru wajib diisi',
             'new_password_confirmation.string' => 'Konfirmasi password harus berupa teks',
             'new_password_confirmation.min' => 'Konfirmasi password minimal 8 karakter'

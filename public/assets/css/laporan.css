@@ -146,6 +146,10 @@
     color: white;
 }
 
+.stat-icon i {
+    color: #ffff;
+}
+
 .stat-icon.primary {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
 }

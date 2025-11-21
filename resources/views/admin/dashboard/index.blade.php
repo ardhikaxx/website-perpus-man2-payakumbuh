@@ -3,7 +3,25 @@
 @section('title', 'Dashboard - Sistem Perpustakaan MAN 2 Kota Payakumbuh')
 @section('page-title', 'Dashboard Perpustakaan')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}">
+@endpush
+
 @section('content')
+<style>
+    .stat-card-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    background-color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 22px;
+}
+</style>
+
     <div class="dashboard-welcome">
         <h2>Selamat Datang, {{ Auth::guard('admin')->user()->nama_lengkap ?? 'Admin' }}!</h2>
         <p>Berikut adalah ringkasan aktivitas perpustakaan hari ini</p>

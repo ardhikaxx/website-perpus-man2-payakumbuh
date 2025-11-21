@@ -15,8 +15,7 @@
                     <tr>
                         <td>
                             @if ($admin->foto)
-                                <img src="{{ asset($admin->foto) }}" alt="{{ $admin->nama_lengkap }}"
-                                    class="admin-avatar"
+                                <img src="{{ asset($admin->foto) }}" alt="{{ $admin->nama_lengkap }}" class="admin-avatar"
                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                 <div class="admin-avatar-placeholder" style="display: none;">
                                     {{ substr($admin->nama_lengkap, 0, 1) }}
@@ -56,12 +55,12 @@
         {!! $admins->appends(request()->except('page'))->links('vendor.pagination') !!}
     </div>
 @else
-    <div class="empty-state">
+    <div class="empty-state flex-column">
         <i class="fas fa-users-slash"></i>
         <h4>Belum ada admin</h4>
         <p>Mulai dengan menambahkan administrator baru</p>
-        <button type="button" class="btn btn-add-admin mt-3" data-bs-toggle="modal"
-            data-bs-target="#adminModal" onclick="resetForm()">
+        <button type="button" class="btn btn-add-admin mt-3" data-bs-toggle="modal" data-bs-target="#adminModal"
+            onclick="resetForm()">
             Tambah Admin Pertama
         </button>
     </div>
