@@ -136,7 +136,6 @@
 
 @push('scripts')
 <script>
-    // Configuration
     const CONFIG = {
         routes: {
             updateProfile: '{{ route('admin.pengaturan.update-profile') }}',
@@ -151,31 +150,25 @@
         }
     };
 
-    // DOM Elements
     const DOM = {
-        // Profile Form
         profileForm: document.getElementById('profileForm'),
         profileSubmitBtn: document.getElementById('profileSubmitBtn'),
         profileSubmitText: document.getElementById('profileSubmitText'),
         profileSubmitSpinner: document.getElementById('profileSubmitSpinner'),
         
-        // Password Form
         passwordForm: document.getElementById('passwordForm'),
         passwordSubmitBtn: document.getElementById('passwordSubmitBtn'),
         passwordSubmitText: document.getElementById('passwordSubmitText'),
         passwordSubmitSpinner: document.getElementById('passwordSubmitSpinner'),
         
-        // File Input
         fotoInput: document.getElementById('foto'),
         
-        // Profile Display Elements
         profileName: document.querySelector('.profile-name'),
         profileEmail: document.querySelector('.profile-email'),
         avatarImage: document.getElementById('avatarImage'),
         avatarPlaceholder: document.getElementById('avatarPlaceholder')
     };
 
-    // Utility Functions
     const Utils = {
         /**
          * Toggle password visibility
@@ -223,7 +216,6 @@
             newAvatarImage.id = 'avatarImage';
             DOM.avatarPlaceholder.parentNode.replaceChild(newAvatarImage, DOM.avatarPlaceholder);
             
-            // Update DOM reference
             DOM.avatarImage = newAvatarImage;
             DOM.avatarPlaceholder = null;
         },
@@ -299,7 +291,6 @@
         }
     };
 
-    // Notification Functions
     const Notifications = {
         /**
          * Show success notification
@@ -351,7 +342,6 @@
         }
     };
 
-    // Form Handler Class
     class FormHandler {
         constructor(formType, options = {}) {
             this.formType = formType;
@@ -373,7 +363,6 @@
         async handleSubmit(e) {
             e.preventDefault();
 
-            // Show loading state
             Utils.showLoading(
                 this.submitBtn, 
                 this.submitText, 
@@ -381,7 +370,6 @@
                 this.options.loadingText || 'Memperbarui...'
             );
 
-            // Clear previous errors
             Utils.clearValidationErrors(this.formType);
 
             try {
@@ -391,7 +379,6 @@
             } catch (error) {
                 this.handleError(error);
             } finally {
-                // Hide loading state
                 Utils.hideLoading(
                     this.submitBtn,
                     this.submitText,
@@ -404,7 +391,6 @@
         prepareFormData() {
             const formData = new FormData(this.form);
 
-            // Add additional data if needed
             if (this.options.prepareData) {
                 this.options.prepareData(formData);
             }
@@ -433,7 +419,6 @@
                     this.options.onSuccess(data);
                 }
                 
-                // Reset form if needed
                 if (this.options.resetOnSuccess) {
                     this.form.reset();
                 }
@@ -467,7 +452,6 @@
         }
     }
 
-    // Profile Form Handler
     const profileHandler = new FormHandler('profile', {
         url: CONFIG.routes.updateProfile,
         loadingText: 'Memperbarui...',
@@ -479,18 +463,15 @@
         },
         onSuccess: (data) => {
             if (data.admin) {
-                // Update profile display
                 DOM.profileName.textContent = data.admin.nama_lengkap;
                 DOM.profileEmail.textContent = data.admin.email;
 
-                // Update header user info if exists
                 const userNameElement = document.querySelector('.user-name');
                 const userEmailElement = document.querySelector('.user-email');
                 
                 if (userNameElement) userNameElement.textContent = data.admin.nama_lengkap;
                 if (userEmailElement) userEmailElement.textContent = data.admin.email;
 
-                // Update avatar if exists
                 if (data.admin.foto) {
                     const timestamp = new Date().getTime();
                     const fotoUrl = `${CONFIG.baseUrl}/${data.admin.foto}?t=${timestamp}`;
@@ -501,14 +482,12 @@
                         Utils.replaceAvatarPlaceholder(fotoUrl);
                     }
 
-                    // Update header avatar if exists
                     const headerAvatar = document.querySelector('.header-avatar');
                     if (headerAvatar) {
                         headerAvatar.src = fotoUrl;
                     }
                 }
 
-                // Update config with new data
                 CONFIG.adminData.nama_lengkap = data.admin.nama_lengkap;
                 CONFIG.adminData.email = data.admin.email;
                 CONFIG.adminData.foto = data.admin.foto;
@@ -516,7 +495,6 @@
         }
     });
 
-    // Password Form Handler
     const passwordHandler = new FormHandler('password', {
         url: CONFIG.routes.updatePassword,
         loadingText: 'Memperbarui...',
@@ -524,7 +502,6 @@
         resetOnSuccess: true
     });
 
-    // Event Listeners
     document.addEventListener('DOMContentLoaded', function() {
         // Avatar upload click handler
         if (DOM.fotoInput) {
@@ -533,7 +510,6 @@
             });
         }
 
-        // Before unload warning
         window.addEventListener('beforeunload', function(e) {
             if (Utils.hasUnsavedChanges()) {
                 e.preventDefault();
@@ -544,7 +520,6 @@
         });
     });
 
-    // Global functions for inline event handlers
     window.togglePassword = Utils.togglePassword.bind(Utils);
     window.previewImage = Utils.previewImage.bind(Utils);
 </script>
