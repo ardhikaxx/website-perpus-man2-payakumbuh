@@ -135,59 +135,176 @@
 @endsection
 
 @push('scripts')
-    <script>
-        function previewImage(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-
-                reader.onload = function(e) {
-                    const avatarImage = document.getElementById('avatarImage');
-                    const avatarPlaceholder = document.getElementById('avatarPlaceholder');
-
-                    if (avatarImage) {
-                        avatarImage.src = e.target.result;
-                    } else {
-                        const newAvatarImage = document.createElement('img');
-                        newAvatarImage.src = e.target.result;
-                        newAvatarImage.alt = 'Profile Picture';
-                        newAvatarImage.className = 'avatar-image';
-                        newAvatarImage.id = 'avatarImage';
-                        avatarPlaceholder.parentNode.replaceChild(newAvatarImage, avatarPlaceholder);
-                    }
-                }
-
-                reader.readAsDataURL(input.files[0]);
-            }
+<script>
+    // Configuration
+    const CONFIG = {
+        routes: {
+            updateProfile: '{{ route('admin.pengaturan.update-profile') }}',
+            updatePassword: '{{ route('admin.pengaturan.update-password') }}'
+        },
+        csrfToken: '{{ csrf_token() }}',
+        baseUrl: '{{ url('/') }}',
+        adminData: {
+            nama_lengkap: '{{ isset($admin) ? $admin->nama_lengkap : '' }}',
+            email: '{{ isset($admin) ? $admin->email : '' }}',
+            foto: '{{ isset($admin) && $admin->foto ? $admin->foto : '' }}'
         }
+    };
 
-        function togglePassword(fieldId) {
+    // DOM Elements
+    const DOM = {
+        // Profile Form
+        profileForm: document.getElementById('profileForm'),
+        profileSubmitBtn: document.getElementById('profileSubmitBtn'),
+        profileSubmitText: document.getElementById('profileSubmitText'),
+        profileSubmitSpinner: document.getElementById('profileSubmitSpinner'),
+        
+        // Password Form
+        passwordForm: document.getElementById('passwordForm'),
+        passwordSubmitBtn: document.getElementById('passwordSubmitBtn'),
+        passwordSubmitText: document.getElementById('passwordSubmitText'),
+        passwordSubmitSpinner: document.getElementById('passwordSubmitSpinner'),
+        
+        // File Input
+        fotoInput: document.getElementById('foto'),
+        
+        // Profile Display Elements
+        profileName: document.querySelector('.profile-name'),
+        profileEmail: document.querySelector('.profile-email'),
+        avatarImage: document.getElementById('avatarImage'),
+        avatarPlaceholder: document.getElementById('avatarPlaceholder')
+    };
+
+    // Utility Functions
+    const Utils = {
+        /**
+         * Toggle password visibility
+         */
+        togglePassword(fieldId) {
             const field = document.getElementById(fieldId);
             const icon = field.parentNode.querySelector('.password-toggle i');
 
             if (field.type === 'password') {
                 field.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
             } else {
                 field.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
             }
-        }
+        },
 
-        function clearValidationErrors(formType) {
-            const errorElements = document.querySelectorAll(`#${formType}Form .invalid-feedback`);
+        /**
+         * Preview uploaded image
+         */
+        previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    if (DOM.avatarImage) {
+                        DOM.avatarImage.src = e.target.result;
+                    } else if (DOM.avatarPlaceholder) {
+                        Utils.replaceAvatarPlaceholder(e.target.result);
+                    }
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        },
+
+        /**
+         * Replace avatar placeholder with image
+         */
+        replaceAvatarPlaceholder(imageSrc) {
+            const newAvatarImage = document.createElement('img');
+            newAvatarImage.src = imageSrc;
+            newAvatarImage.alt = 'Profile Picture';
+            newAvatarImage.className = 'avatar-image';
+            newAvatarImage.id = 'avatarImage';
+            DOM.avatarPlaceholder.parentNode.replaceChild(newAvatarImage, DOM.avatarPlaceholder);
+            
+            // Update DOM reference
+            DOM.avatarImage = newAvatarImage;
+            DOM.avatarPlaceholder = null;
+        },
+
+        /**
+         * Clear validation errors for a form
+         */
+        clearValidationErrors(formType) {
+            const form = document.getElementById(`${formType}Form`);
+            if (!form) return;
+
+            const errorElements = form.querySelectorAll('.invalid-feedback');
             errorElements.forEach(element => {
                 element.textContent = '';
             });
 
-            const inputElements = document.querySelectorAll(`#${formType}Form .form-control`);
+            const inputElements = form.querySelectorAll('.form-control');
             inputElements.forEach(element => {
                 element.classList.remove('is-invalid');
             });
-        }
+        },
 
-        function showSweetAlertSuccess(title, message, icon = 'success') {
+        /**
+         * Show loading state for a button
+         */
+        showLoading(button, textElement, spinner, loadingText = 'Memperbarui...') {
+            button.disabled = true;
+            textElement.textContent = loadingText;
+            spinner.style.display = 'inline-block';
+        },
+
+        /**
+         * Hide loading state for a button
+         */
+        hideLoading(button, textElement, spinner, originalText) {
+            button.disabled = false;
+            textElement.textContent = originalText;
+            spinner.style.display = 'none';
+        },
+
+        /**
+         * Check if response is JSON
+         */
+        async parseResponse(response) {
+            const contentType = response.headers.get('content-type');
+            
+            if (contentType && contentType.includes('application/json')) {
+                return await response.json();
+            } else {
+                const text = await response.text();
+                console.error('Non-JSON response:', text);
+                throw new Error('Server returned non-JSON response');
+            }
+        },
+
+        /**
+         * Check if form has unsaved changes
+         */
+        hasUnsavedChanges() {
+            const profileChanged = (
+                DOM.profileForm.nama_lengkap.value !== CONFIG.adminData.nama_lengkap ||
+                DOM.profileForm.email.value !== CONFIG.adminData.email ||
+                DOM.fotoInput.files.length > 0
+            );
+
+            const passwordChanged = (
+                DOM.passwordForm.current_password.value !== '' ||
+                DOM.passwordForm.new_password.value !== '' ||
+                DOM.passwordForm.new_password_confirmation.value !== ''
+            );
+
+            return profileChanged || passwordChanged;
+        }
+    };
+
+    // Notification Functions
+    const Notifications = {
+        /**
+         * Show success notification
+         */
+        showSuccess(title, message, icon = 'success') {
             Swal.fire({
                 title: title,
                 text: message,
@@ -203,9 +320,12 @@
                     popup: 'animate__animated animate__fadeOutUp'
                 }
             });
-        }
+        },
 
-        function showSweetAlertError(title, message) {
+        /**
+         * Show error notification
+         */
+        showError(title, message) {
             Swal.fire({
                 title: title,
                 html: message,
@@ -216,252 +336,216 @@
                     popup: 'animate__animated animate__shakeX'
                 }
             });
-        }
+        },
 
-        function showSweetAlertValidation(errors) {
+        /**
+         * Show validation errors
+         */
+        showValidationErrors(errors) {
             let errorMessages = '';
             Object.keys(errors).forEach(field => {
                 errorMessages += `<div class="text-start">• ${errors[field][0]}</div>`;
             });
 
-            Swal.fire({
-                title: 'Error Validasi!',
-                html: errorMessages,
-                icon: 'error',
-                confirmButtonColor: '#dc3545',
-                confirmButtonText: 'OK',
-                showClass: {
-                    popup: 'animate__animated animate__shakeX'
+            this.showError('Error Validasi!', errorMessages);
+        }
+    };
+
+    // Form Handler Class
+    class FormHandler {
+        constructor(formType, options = {}) {
+            this.formType = formType;
+            this.form = document.getElementById(`${formType}Form`);
+            this.submitBtn = document.getElementById(`${formType}SubmitBtn`);
+            this.submitText = document.getElementById(`${formType}SubmitText`);
+            this.submitSpinner = document.getElementById(`${formType}SubmitSpinner`);
+            this.options = options;
+            
+            this.init();
+        }
+
+        init() {
+            if (this.form) {
+                this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+            }
+        }
+
+        async handleSubmit(e) {
+            e.preventDefault();
+
+            // Show loading state
+            Utils.showLoading(
+                this.submitBtn, 
+                this.submitText, 
+                this.submitSpinner, 
+                this.options.loadingText || 'Memperbarui...'
+            );
+
+            // Clear previous errors
+            Utils.clearValidationErrors(this.formType);
+
+            try {
+                const formData = this.prepareFormData();
+                const response = await this.sendRequest(formData);
+                await this.handleResponse(response);
+            } catch (error) {
+                this.handleError(error);
+            } finally {
+                // Hide loading state
+                Utils.hideLoading(
+                    this.submitBtn,
+                    this.submitText,
+                    this.submitSpinner,
+                    this.options.originalText || 'Perbarui'
+                );
+            }
+        }
+
+        prepareFormData() {
+            const formData = new FormData(this.form);
+
+            // Add additional data if needed
+            if (this.options.prepareData) {
+                this.options.prepareData(formData);
+            }
+
+            return formData;
+        }
+
+        async sendRequest(formData) {
+            const response = await fetch(this.options.url, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': CONFIG.csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            return await Utils.parseResponse(response);
+        }
+
+        handleResponse(data) {
+            if (data.success) {
+                Notifications.showSuccess('Berhasil!', data.message, 'success');
+                
+                if (this.options.onSuccess) {
+                    this.options.onSuccess(data);
+                }
+                
+                // Reset form if needed
+                if (this.options.resetOnSuccess) {
+                    this.form.reset();
+                }
+            } else {
+                if (data.errors) {
+                    this.showFieldErrors(data.errors);
+                    Notifications.showValidationErrors(data.errors);
+                } else {
+                    Notifications.showError('Error!', data.message);
+                }
+            }
+        }
+
+        showFieldErrors(errors) {
+            Object.keys(errors).forEach(field => {
+                const input = this.form.querySelector(`[name="${field}"]`);
+                const errorElement = document.getElementById(`${field}_error`);
+                
+                if (input && errorElement) {
+                    input.classList.add('is-invalid');
+                    errorElement.textContent = errors[field][0];
                 }
             });
         }
 
-        document.getElementById('profileForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        handleError(error) {
+            console.error('Error:', error);
+            Notifications.showError('Error!', 
+                `Terjadi kesalahan saat memperbarui ${this.formType}: ${error.message}`
+            );
+        }
+    }
 
-            const submitBtn = document.getElementById('profileSubmitBtn');
-            const submitText = document.getElementById('profileSubmitText');
-            const submitSpinner = document.getElementById('profileSubmitSpinner');
-
-            submitBtn.disabled = true;
-            submitText.textContent = 'Memperbarui...';
-            submitSpinner.style.display = 'inline-block';
-
-            clearValidationErrors('profile');
-
-            const formData = new FormData(this);
-
-            const fotoInput = document.getElementById('foto');
-            if (fotoInput.files[0]) {
-                formData.append('foto', fotoInput.files[0]);
+    // Profile Form Handler
+    const profileHandler = new FormHandler('profile', {
+        url: CONFIG.routes.updateProfile,
+        loadingText: 'Memperbarui...',
+        originalText: 'Perbarui Profil',
+        prepareData: (formData) => {
+            if (DOM.fotoInput.files[0]) {
+                formData.append('foto', DOM.fotoInput.files[0]);
             }
+        },
+        onSuccess: (data) => {
+            if (data.admin) {
+                // Update profile display
+                DOM.profileName.textContent = data.admin.nama_lengkap;
+                DOM.profileEmail.textContent = data.admin.email;
 
-            fetch('{{ route('admin.pengaturan.update-profile') }}', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'X-Requested-With': 'XMLHttpRequest'
+                // Update header user info if exists
+                const userNameElement = document.querySelector('.user-name');
+                const userEmailElement = document.querySelector('.user-email');
+                
+                if (userNameElement) userNameElement.textContent = data.admin.nama_lengkap;
+                if (userEmailElement) userEmailElement.textContent = data.admin.email;
+
+                // Update avatar if exists
+                if (data.admin.foto) {
+                    const timestamp = new Date().getTime();
+                    const fotoUrl = `${CONFIG.baseUrl}/${data.admin.foto}?t=${timestamp}`;
+
+                    if (DOM.avatarImage) {
+                        DOM.avatarImage.src = fotoUrl;
+                    } else if (DOM.avatarPlaceholder) {
+                        Utils.replaceAvatarPlaceholder(fotoUrl);
                     }
-                })
-                .then(async (response) => {
-                    const contentType = response.headers.get('content-type');
 
-                    if (contentType && contentType.includes('application/json')) {
-                        return response.json();
-                    } else {
-                        const text = await response.text();
-                        console.error('Non-JSON response:', text);
-                        throw new Error('Server returned non-JSON response');
+                    // Update header avatar if exists
+                    const headerAvatar = document.querySelector('.header-avatar');
+                    if (headerAvatar) {
+                        headerAvatar.src = fotoUrl;
                     }
-                })
-                .then(data => {
-                    if (data.success) {
-                        showSweetAlertSuccess('Berhasil!', data.message, 'success');
+                }
 
-                        if (data.admin) {
-                            document.querySelector('.profile-name').textContent = data.admin.nama_lengkap;
-                            document.querySelector('.profile-email').textContent = data.admin.email;
+                // Update config with new data
+                CONFIG.adminData.nama_lengkap = data.admin.nama_lengkap;
+                CONFIG.adminData.email = data.admin.email;
+                CONFIG.adminData.foto = data.admin.foto;
+            }
+        }
+    });
 
-                            const userNameElement = document.querySelector('.user-name');
-                            if (userNameElement) {
-                                userNameElement.textContent = data.admin.nama_lengkap;
-                            }
+    // Password Form Handler
+    const passwordHandler = new FormHandler('password', {
+        url: CONFIG.routes.updatePassword,
+        loadingText: 'Memperbarui...',
+        originalText: 'Perbarui Password',
+        resetOnSuccess: true
+    });
 
-                            const userEmailElement = document.querySelector('.user-email');
-                            if (userEmailElement) {
-                                userEmailElement.textContent = data.admin.email;
-                            }
+    // Event Listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        // Avatar upload click handler
+        if (DOM.fotoInput) {
+            DOM.fotoInput.addEventListener('change', function() {
+                Utils.previewImage(this);
+            });
+        }
 
-                            if (data.admin.foto) {
-                                const avatarImage = document.getElementById('avatarImage');
-                                const avatarPlaceholder = document.getElementById('avatarPlaceholder');
-
-                                if (avatarImage) {
-                                    avatarImage.src = '{{ url('/') }}/' + data.admin.foto + '?t=' +
-                                        new Date().getTime();
-                                } else if (avatarPlaceholder) {
-                                    const newAvatarImage = document.createElement('img');
-                                    newAvatarImage.src = '{{ url('/') }}/' + data.admin.foto + '?t=' +
-                                        new Date().getTime();
-                                    newAvatarImage.alt = 'Profile Picture';
-                                    newAvatarImage.className = 'avatar-image';
-                                    newAvatarImage.id = 'avatarImage';
-                                    avatarPlaceholder.parentNode.replaceChild(newAvatarImage,
-                                    avatarPlaceholder);
-                                }
-
-                                const headerAvatar = document.querySelector('.header-avatar');
-                                if (headerAvatar) {
-                                    headerAvatar.src = '{{ url('/') }}/' + data.admin.foto + '?t=' +
-                                        new Date().getTime();
-                                }
-                            }
-                        }
-                    } else {
-                        if (data.errors) {
-                            Object.keys(data.errors).forEach(field => {
-                                const input = document.querySelector(`[name="${field}"]`);
-                                const errorElement = document.getElementById(`${field}_error`);
-                                if (input && errorElement) {
-                                    input.classList.add('is-invalid');
-                                    errorElement.textContent = data.errors[field][0];
-                                }
-                            });
-
-                            showSweetAlertValidation(data.errors);
-                        } else {
-                            showSweetAlertError('Error!', data.message);
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showSweetAlertError('Error!', 'Terjadi kesalahan saat memperbarui profil: ' + error
-                    .message);
-                })
-                .finally(() => {
-                    submitBtn.disabled = false;
-                    submitText.textContent = 'Perbarui Profil';
-                    submitSpinner.style.display = 'none';
-                });
-        });
-
-        document.getElementById('passwordForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const submitBtn = document.getElementById('passwordSubmitBtn');
-            const submitText = document.getElementById('passwordSubmitText');
-            const submitSpinner = document.getElementById('passwordSubmitSpinner');
-
-            submitBtn.disabled = true;
-            submitText.textContent = 'Memperbarui...';
-            submitSpinner.style.display = 'inline-block';
-
-            clearValidationErrors('password');
-
-            const formData = new FormData(this);
-
-            fetch('{{ route('admin.pengaturan.update-password') }}', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(async (response) => {
-                    const contentType = response.headers.get('content-type');
-
-                    if (contentType && contentType.includes('application/json')) {
-                        return response.json();
-                    } else {
-                        const text = await response.text();
-                        console.error('Non-JSON response:', text);
-                        throw new Error('Server returned non-JSON response');
-                    }
-                })
-                .then(data => {
-                    if (data.success) {
-                        showSweetAlertSuccess('Berhasil!', data.message, 'success');
-                        document.getElementById('passwordForm').reset();
-                    } else {
-                        if (data.errors) {
-                            Object.keys(data.errors).forEach(field => {
-                                const input = document.querySelector(`[name="${field}"]`);
-                                const errorElement = document.getElementById(`${field}_error`);
-                                if (input && errorElement) {
-                                    input.classList.add('is-invalid');
-                                    errorElement.textContent = data.errors[field][0];
-                                }
-                            });
-
-                            showSweetAlertValidation(data.errors);
-                        } else {
-                            showSweetAlertError('Error!', data.message);
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showSweetAlertError('Error!', 'Terjadi kesalahan saat memperbarui password: ' + error
-                        .message);
-                })
-                .finally(() => {
-                    submitBtn.disabled = false;
-                    submitText.textContent = 'Perbarui Password';
-                    submitSpinner.style.display = 'none';
-                });
-        });
-
+        // Before unload warning
         window.addEventListener('beforeunload', function(e) {
-            const profileForm = document.getElementById('profileForm');
-            const passwordForm = document.getElementById('passwordForm');
-
-            const profileChanged = (
-                profileForm.nama_lengkap.value !== '{{ isset($admin) ? $admin->nama_lengkap : '' }}' ||
-                profileForm.email.value !== '{{ isset($admin) ? $admin->email : '' }}' ||
-                document.getElementById('foto').files.length > 0
-            );
-
-            const passwordChanged = (
-                passwordForm.current_password.value !== '' ||
-                passwordForm.new_password.value !== '' ||
-                passwordForm.new_password_confirmation.value !== ''
-            );
-
-            if (profileChanged || passwordChanged) {
+            if (Utils.hasUnsavedChanges()) {
                 e.preventDefault();
-                e.returnValue =
+                e.returnValue = 
                     'Anda memiliki perubahan yang belum disimpan. Apakah Anda yakin ingin meninggalkan halaman ini?';
                 return e.returnValue;
             }
         });
+    });
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const newPasswordInput = document.getElementById('new_password');
-            if (newPasswordInput) {
-                newPasswordInput.addEventListener('focus', function() {
-                    Swal.fire({
-                        title: 'Persyaratan Password',
-                        html: `
-                    <div class="text-start">
-                        <p>Password harus memenuhi:</p>
-                        <ul class="text-start">
-                            <li>Minimal 8 karakter</li>
-                            <li>Mengandung huruf kecil dan besar</li>
-                            <li>Mengandung angka</li>
-                            <li>Mengandung karakter spesial (@$!%*?&)</li>
-                            <li>Tidak sama dengan password lama</li>
-                        </ul>
-                    </div>
-                `,
-                        icon: 'info',
-                        confirmButtonColor: '#17a2b8',
-                        confirmButtonText: 'Mengerti'
-                    });
-                });
-            }
-        });
-    </script>
+    // Global functions for inline event handlers
+    window.togglePassword = Utils.togglePassword.bind(Utils);
+    window.previewImage = Utils.previewImage.bind(Utils);
+</script>
 @endpush
