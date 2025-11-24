@@ -394,7 +394,7 @@
             width: 200%;
             height: 200%;
             background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
-            transform: rotate(30deg);
+            transform: rotate(40deg);
         }
 
         .visitor-count h3 {
