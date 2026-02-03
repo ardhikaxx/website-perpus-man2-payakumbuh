@@ -1,93 +1,90 @@
 # Website Perpustakaan MAN 2 Payakumbuh
 
-Website Perpustakaan MAN 2 Payakumbuh adalah aplikasi web yang memudahkan pengelolaan dan pencarian koleksi buku di perpustakaan MAN 2 Payakumbuh. Aplikasi ini dibangun dengan PHP dan Blade (Laravel), dengan tampilan interaktif dan mudah digunakan.
+Website Perpustakaan MAN 2 Payakumbuh adalah aplikasi web untuk mendata kunjungan, mengelola koleksi buku, serta memudahkan admin dalam membuat laporan aktivitas perpustakaan.
 
-## Fitur Aplikasi
+## Daftar Isi
+- [Fitur Utama](#fitur-utama)
+- [Teknologi](#teknologi)
+- [Struktur Modul](#struktur-modul)
+- [Quick Start](#quick-start)
+- [Akun Admin Seed](#akun-admin-seed)
+- [Script Penting](#script-penting)
+- [Kontribusi](#kontribusi)
 
-### Sidebar (Menu Navigasi)
-Berikut adalah fitur-fitur utama yang biasanya tersedia pada sidebar aplikasi (berdasarkan struktur controller dan route):
+## Fitur Utama
+- **Form Pengunjung**: pencatatan kunjungan tamu perpustakaan.
+- **Dashboard Admin**: ringkasan statistik pengunjung, admin, dan buku.
+- **Manajemen Buku**: tambah, ubah, hapus, dan lihat detail data buku.
+- **Manajemen Admin**: kelola akun admin (profil, foto, dan hak akses).
+- **Laporan**: rekap statistik kunjungan dan ekspor ke CSV/PDF.
+- **Pengaturan Akun**: ubah profil dan kata sandi admin.
 
-- **Dashboard**: Tampilkan statistik dan ringkasan utama perpustakaan (jumlah pengunjung, buku, admin, grafik statistik bulanan).
-- **Manajemen Buku**: CRUD data buku (tambah, edit, hapus, detil, dan pencarian buku).
-- **Manajemen Admin**: CRUD data admin (tambah, edit, hapus, detil profil admin).
-- **Laporan**: Laporan statistik kunjungan (berdasarkan periode: harian, mingguan, bulanan, tahunan, custom date), grafik kunjungan, dan ekspor laporan (CSV, PDF).
-- **Pengaturan Akun**: Update profil dan mengubah password.
-- **Logout**: Logout dari sistem.
+## Teknologi
+- **Backend**: Laravel 12 (PHP 8.2)
+- **Frontend**: Blade + Vite + Tailwind CSS
+- **Database**: MySQL (atau database kompatibel Laravel)
 
----
+## Struktur Modul
+Modul utama bisa ditemukan di `app/Http/Controllers` dan `routes/web.php`:
+- **AuthController**: autentikasi admin (login/logout).
+- **DashboardController**: statistik ringkasan perpustakaan.
+- **PengunjungController**: input dan rekap data pengunjung.
+- **ManajemenBukuController**: CRUD data buku.
+- **ManajemenAdminController**: CRUD akun admin.
+- **LaporanController**: filter laporan dan ekspor data.
+- **PengaturanController**: pengaturan profil dan kata sandi.
 
-### Rincian Fitur Pada Setiap Controller
-
-#### 1. AuthController
-- **Login/Logout Admin**: Form login dengan validasi, autentikasi admin, sesi pengguna, dan pesan error jika login gagal.
-- **Logout**: Mengakhiri sesi admin dan mengarahkan ke halaman login.
-
-#### 2. DashboardController
-- **Statistik Pengunjung, Buku, Admin**: Menampilkan total dan tren statistik (grafik pertumbuhan), serta rekap berdasarkan periode (mingguan, bulanan, tahunan).
-- **Ringkasan Buku**: Jumlah buku berdasarkan kategori/status.
-
-#### 3. PengunjungController
-- **Input Data Pengunjung**: Form isian tamu untuk mencatat nama, jenis kelamin, usia, keperluan, buku yang dicari, dan saran.
-- **Rekap Pengunjung Hari Ini**: Menampilkan data pengunjung hari ini.
-- **API Statistik Pengunjung**: Endpoint untuk rekap data pengunjung (harian/statistik).
-
-#### 4. ManajemenAdminController
-- **Daftar Admin**: Lihat semua admin, pencarian, dan pagination.
-- **Tambah Admin**: Validasi dan simpan admin baru (termasuk upload foto profil).
-- **Edit/Hapus Admin**: Update data atau hapus admin.
-- **Lihat Profil Admin**: Detail informasi admin.
-
-#### 5. ManajemenBukuController
-- **Daftar Buku**: Lihat seluruh buku dengan pencarian dan filter.
-- **Tambah Buku**: Input data baru (judul, pengarang, tahun, penerbit, jumlah halaman).
-- **Edit/Hapus Buku**: Update data atau hapus buku.
-- **Detail Buku**: Informasi rinci buku.
-
-#### 6. LaporanController
-- **Laporan Pengunjung**: Filter laporan berdasarkan periode (hari, minggu, bulan, tahun, rentang waktu).
-- **Statistik Jenis Kelamin & Keperluan**: Visualisasi data pengunjung per kategori.
-- **Ekspor Laporan**: Ekspor laporan dalam format CSV atau PDF.
-
-#### 7. PengaturanController
-- **Profil Admin**: Update nama, email, foto profil dengan validasi keamanan (anti-XSS).
-- **Ganti Password**: Update password admin.
-- **Proteksi Validasi**: Validasi regex dan keamanan input form.
-
----
-
-## Teknologi yang Digunakan
-
-- **Backend**: PHP (Laravel)
-- **Frontend**: Blade Template, CSS, JavaScript
-- **Database**: MySQL (umumnya Laravel)
-- **Fitur Tambahan**: Validasi keamanan input, logging aktivitas, ekspor laporan, API pengunjung.
-
-## Cara Menjalankan
-
-1. Clone repo ini.
-2. Instal dependency via Composer:
-   ```
+## Quick Start
+1. **Install dependency backend**
+   ```bash
    composer install
    ```
-3. Copy `.env.example` ke `.env` dan konfigurasi database.
-4. Generate key Laravel:
+2. **Salin konfigurasi environment**
+   ```bash
+   cp .env.example .env
    ```
+3. **Atur koneksi database** di file `.env`.
+4. **Generate app key**
+   ```bash
    php artisan key:generate
    ```
-5. Jalankan migrasi dan seeder database:
-   ```
+5. **Migrasi & seed data**
+   ```bash
    php artisan migrate --seed
    ```
-6. Jalankan server:
+6. **Install dependency frontend & build assets**
+   ```bash
+   npm install
+   npm run build
    ```
+7. **Jalankan server lokal**
+   ```bash
    php artisan serve
    ```
 
-## Kontribusi & Lisensi
+> Alternatif cepat: jalankan `composer run setup` untuk menyiapkan aplikasi secara otomatis.
 
-Anda dapat mengembangkan aplikasi ini dengan mengikuti standar Laravel. Silakan membuat pull request atau issue untuk kontribusi. Lisensi mengikuti standar open source yang tertera di repo.
+## Akun Admin Seed
+Setelah menjalankan seeder, Anda bisa login menggunakan akun berikut:
+- **Email**: `admin@perpus.com`
+- **Password**: `password`
+
+> Akun ini dibuat di `database/seeders/AdminSeeder.php`.
+
+## Script Penting
+- **Menjalankan mode development**
+  ```bash
+  composer run dev
+  ```
+  Menjalankan server Laravel, queue listener, dan Vite bersamaan.
+
+- **Menjalankan test**
+  ```bash
+  composer run test
+  ```
+
+## Kontribusi
+Kontribusi sangat terbuka. Silakan ajukan issue atau pull request untuk perbaikan dan fitur baru.
 
 ---
-
-> **Repository Source:**  
-> https://github.com/ardhikaxx/website-perpus-man2-payakumbuh
+**Repository Source**: https://github.com/ardhikaxx/website-perpus-man2-payakumbuh
