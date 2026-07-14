@@ -1,4 +1,4 @@
-# Website Perpustakaan MAN 2 Payakumbuh
+﻿# Website Perpustakaan MAN 2 Payakumbuh
 
 Website Perpustakaan MAN 2 Payakumbuh adalah aplikasi web untuk mendata kunjungan, mengelola koleksi buku, serta memudahkan admin dalam membuat laporan aktivitas perpustakaan.
 
@@ -96,7 +96,7 @@ Jika project ini bermanfaat, Anda dapat mendukung pengembangan selanjutnya melal
 
 <div align="center">
 
-![QRIS](public/assets/qris.png)
+<img src="public/assets/qris.png" alt="QRIS" width="250" />
 
 **Scan QRIS di atas untuk berdonasi**
 
